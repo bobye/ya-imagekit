@@ -1,0 +1,4 @@
+- Color Factor Model
+- Sparse Learning for Patches
+- Segmentation
+- Texture Synthesis
