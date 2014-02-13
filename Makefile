@@ -11,14 +11,14 @@ INCLUDES=-Iinclude/ -I$(OPENCV_PATH)/include
 LIBRARIES=-L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgproc -lopencv_highgui
 
 # Files which require compiling
-SOURCE_FILES=
+SOURCE_FILES=src/colorfactor.cc
 
 # Source files which contain a int main(..) function
-SOURCE_FILES_WITH_MAIN=src/demo.cpp
+SOURCE_FILES_WITH_MAIN=src/demo.cc
 
 ALL_OBJECTS=\
-	$(SOURCE_OBJECTS) \
-	$(patsubst %.cpp,%.o,$(SOURCE_FILES_WITH_MAIN))
+	$(patsubst %.cc,%.o,$(SOURCE_FILES)) \
+	$(patsubst %.cc,%.o,$(SOURCE_FILES_WITH_MAIN))
 
 DEPENDENCY_FILES=\
 	$(patsubst %.o,%.d,$(ALL_OBJECTS)) 
@@ -32,11 +32,12 @@ all: bin/demo
 	$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $< 
 
 bin/demo: $(ALL_OBJECTS)
-	$(CXX) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBRARIES)
+	$(CXX) $(CFLAGS) $(INCLUDES) $? -o $@ $(LIBRARIES)
 
 -include $(DEPENDENCY_FILES)
 
 .PHONY: clean
 clean:
-	$(RM) src/*.o
+	$(RM) */*.d
+	$(RM) */*.o
 	$(RM) bin/demo
