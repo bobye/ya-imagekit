@@ -32,7 +32,7 @@ all: bin/demo
 	$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $< 
 
 bin/demo: $(ALL_OBJECTS)
-	$(CXX) $(CFLAGS) $(INCLUDES) $? -o $@ $(LIBRARIES) 
+	$(CXX) $(CFLAGS) $(INCLUDES) $(ALL_OBJECTS) -o $@ $(LIBRARIES) 
 
 -include $(DEPENDENCY_FILES)
 

@@ -49,19 +49,7 @@ namespace ya_imagekit {
 
     segments_map = segments_array.reshape(0, lab.rows);    
 
-    printf("Kmeans finished!\n");
-    // display THE segmentation map 
-    /*
-    double minVal, maxVal;
-    minMaxLoc(segments_map, &minVal, &maxVal);
-    Mat draw;
-    segments_map.convertTo(draw, CV_8U, 255.0/(maxVal - minVal), -minVal * 255.0/(maxVal - minVal));
-    namedWindow("segmentation image", CV_WINDOW_AUTOSIZE);
-    imshow("segmentation image", draw);
-    printf("Press a button to continue ..."); fflush(stdout); waitKey(0);
-    printf("[done]\n");
-    destroyWindow("segmentation image");
-    */
+    printf("Lab kmeans segmentation finished!\n");
     return 0;
   }
 
