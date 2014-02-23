@@ -37,13 +37,13 @@ namespace ya_imagekit {
     int createSegmentsByKmeans(int k); // k: the number of segments
     int prepareSegments();
     
-    static int writeSegmentSchema(FILE * fp){
+    static int writeSegmentSchema(FILE * fp = NULL){
       if (fp == NULL) fp = stdout;
       fprintf(fp, "idx\tavgLab{3}\tsaturation\tsize(%%)\tmean{2}\tdev{2x2}\telongation\tcompactness\tcentrality\n");
       return 0;
     };
 
-    int writeSegments(FILE *fp){
+    int writeSegments(FILE *fp = NULL){
       if (fp == NULL) fp = stdout;
 
       for (int i=0; i<usegs.size(); ++i) 
@@ -62,7 +62,7 @@ namespace ya_imagekit {
       return 0;
     };
         
-    int displaySegments(bool *isShown);
+    int displaySegments(bool *isShown = NULL);
 
     ~Image() {
       cvReleaseImage(&rgb); 

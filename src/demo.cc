@@ -5,11 +5,11 @@ int main(int argc, char ** argv) {
   img.read("test0.jpg");
   img.createSegmentsByKmeans(20);
   img.prepareSegments();
-  img.displaySegments(NULL);
+  img.displaySegments();
 
   
-  img.writeSegmentSchema(NULL);
-  img.writeSegments(NULL);
+  img.writeSegmentSchema();
+  img.writeSegments();
 
 
   return 0;
