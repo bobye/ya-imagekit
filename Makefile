@@ -14,7 +14,7 @@ LIBRARIES=-L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgproc -lopencv_highgui
 SOURCE_FILES=src/colorfactor.cc
 
 # Source files which contain a int main(..) function
-SOURCE_FILES_WITH_MAIN=src/demo.cc
+SOURCE_FILES_WITH_MAIN=src/extractColorFactors.cc
 
 ALL_OBJECTS=\
 	$(patsubst %.cc,%.o,$(SOURCE_FILES)) \
@@ -23,7 +23,7 @@ ALL_OBJECTS=\
 DEPENDENCY_FILES=\
 	$(patsubst %.o,%.d,$(ALL_OBJECTS)) 
 
-all: bin/demo
+all: bin/extractColorFactors
 
 %.o: %.cc Makefile
 	@# Make dependecy file
@@ -31,7 +31,7 @@ all: bin/demo
 	@# Compile
 	$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $< 
 
-bin/demo: $(ALL_OBJECTS)
+bin/extractColorFactors: $(ALL_OBJECTS)
 	$(CXX) $(CFLAGS) $(INCLUDES) $(ALL_OBJECTS) -o $@ $(LIBRARIES) 
 
 -include $(DEPENDENCY_FILES)
