@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <opencv/highgui.h>
 
-#include <algorithm>    // std::sort
+#include "util.hpp"
 
 namespace ya_imagekit {
   int Image::read(const char * filename) {
@@ -84,13 +84,6 @@ namespace ya_imagekit {
     return count >= threshold;
   }
 
-  inline void softBoundingBox(std::vector<int> &array, int &min, int &max) {
-    const float threshold = .05;
-    std::sort(array.begin(), array.end());
-    min = array[std::floor(threshold * array.size())];
-    max = array[std::floor((1-threshold)*array.size())];
-    return;
-  }
 
   int Image::prepareSegments() {
     using namespace cv;
@@ -153,8 +146,8 @@ namespace ya_imagekit {
       usegs[i].mean[1] /= usegs[i].area;
 
       int min, max, box_height, box_width;
-      softBoundingBox(setOfRows[i], min, max); box_height = max-min;
-      softBoundingBox(setOfCols[i], min, max); box_width = max-min;
+      softBoundingBox(&setOfRows[i][0], setOfRows[i].size(), min, max); box_height = max-min;
+      softBoundingBox(&setOfCols[i][0], setOfRows[i].size(), min, max); box_width = max-min;
       
       usegs[i].elongation =  1- (float) (std::min(box_height, box_width))/ (float) (std::max(box_height, box_width));
     }
