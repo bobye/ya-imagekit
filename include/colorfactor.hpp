@@ -5,6 +5,7 @@ namespace ya_imagekit {
   struct UnarySeg {
     int label;
     int area, boundary;    
+    cv::Point center;
 
     // color properties
     float avgLab[3], saturation;

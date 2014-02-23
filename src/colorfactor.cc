@@ -65,10 +65,37 @@ namespace ya_imagekit {
     return 0;
   }
 
+  const int window_size = 5;
+  const int threshold = 5;
+
+  inline void buildConnectHistogram(int row, int col, const cv::Mat &maps, 
+				    std::vector<int> &histogram) {
+    int k = std::sqrt(histogram.size());
+    std::vector<int> v(k, 0);
+
+    int halfwindow_size = (window_size -1)/2;
+    
+    for (int i=row-halfwindow_size; i<=row + halfwindow_size; ++i) 
+      for (int j=col -halfwindow_size; j <=col + halfwindow_size; ++j) 
+	if (i<0 || j<0 || i >= maps.rows || j >= maps.cols) {
+	} else {
+	  v[maps.at<int>(i,j)] ++;
+	}
+
+    int max1=0, max2=1;
+    for (int i=2; i<k; ++i) // find the max two segments in window
+      if (v[i]>v[max1]) max1=i;
+      else if (v[i]>v[max2]) max2=i;
+    
+    if (v[max1]>=2 && v[max2]>=2) {
+      histogram[max1 *k +max2] ++;
+      histogram[max1 + max2*k] ++;
+    }
+
+    return ;
+  }
 
   inline bool checkBoundary(int row, int col, const cv::Mat &maps) {
-    const int window_size = 3;
-    const int threshold = 2;
 
     int halfwindow_size = (window_size -1)/2;
     int count = 0;
@@ -99,7 +126,7 @@ namespace ya_imagekit {
       s.label=i;s.area=0;
       s.avgLab[0] = s.avgLab[1] = s.avgLab[2] =0;
       s.saturation = 0;
-      s.mean[0]= s.mean[1] =0;
+      s.center = cv::Point(0,0);//s.mean[0]= s.mean[1] =0;
       s.dev[0]=s.dev[1]=s.dev[2]=s.dev[3]=0;
       s.boundary = 0;
       usegs.push_back(s);
@@ -126,8 +153,8 @@ namespace ya_imagekit {
       int a = (pixel[1] - 127), b = pixel[2] -127, L = pixel[0]*100/255;
       usegs[idx].saturation += std::sqrt(a*a + b*b)/std::sqrt(a*a + b*b + L*L);
 
-      usegs[idx].mean[0] += i/cols; setOfRows[idx].push_back(i/cols);
-      usegs[idx].mean[1] += i%cols; setOfCols[idx].push_back(i%cols);
+      usegs[idx].center.y += i/cols; setOfRows[idx].push_back(i/cols);
+      usegs[idx].center.x += i%cols; setOfCols[idx].push_back(i%cols);
 
       usegs[idx].area ++;
       if (checkBoundary(i/cols, i%cols, segments_map)) usegs[idx].boundary ++;
@@ -142,8 +169,8 @@ namespace ya_imagekit {
       usegs[i].saturation /=usegs[i].area;
 
       usegs[i].compactness = 1. - (float) usegs[i].boundary / (float) usegs[i].area;
-      usegs[i].mean[0] /= usegs[i].area;
-      usegs[i].mean[1] /= usegs[i].area;
+      usegs[i].center.y /= usegs[i].area;
+      usegs[i].center.x /= usegs[i].area;
 
       int min, max, box_height, box_width;
       softBoundingBox(&setOfRows[i][0], setOfRows[i].size(), min, max); box_height = max-min;
@@ -154,9 +181,9 @@ namespace ya_imagekit {
 
     for (int i=0; i<numOfPixels; ++i) {
       int idx = segments_map.at<int> (i);
-      usegs[idx].dev[0] += (i/cols - usegs[idx].mean[0]) * (i/cols - usegs[idx].mean[0]);
-      usegs[idx].dev[2] = usegs[idx].dev[1] += (i/cols - usegs[idx].mean[0]) * (i%cols - usegs[idx].mean[1]);
-      usegs[idx].dev[3] += (i%cols - usegs[idx].mean[1]) * (i%cols - usegs[idx].mean[1]);
+      usegs[idx].dev[0] += (i/cols - usegs[idx].center.y) * (i/cols - usegs[idx].center.y);
+      usegs[idx].dev[2] = usegs[idx].dev[1] += (i/cols - usegs[idx].center.y) * (i%cols - usegs[idx].center.x);
+      usegs[idx].dev[3] += (i%cols - usegs[idx].center.x) * (i%cols - usegs[idx].center.x);
     }
 
 
@@ -166,8 +193,8 @@ namespace ya_imagekit {
     for (int i=0; i<usegs.size(); ++i) {
       usegs[i].size = (float) usegs[i].area / (float) numOfPixels;
 
-      usegs[i].mean[0] =.5 + (usegs[i].mean[0] - rows/2) / largerBound;
-      usegs[i].mean[1] =.5 + (usegs[i].mean[1] - cols/2) / largerBound;
+      usegs[i].mean[0] =.5 + (usegs[i].center.y - rows/2) / largerBound;
+      usegs[i].mean[1] =.5 + (usegs[i].center.x - cols/2) / largerBound;
 
       usegs[i].dev[0] /= (float) largerBound * largerBound * (float) usegs[i].area;
       usegs[i].dev[1] = usegs[i].dev[2] /= (float) largerBound * largerBound * (float) usegs[i].area;
@@ -177,7 +204,35 @@ namespace ya_imagekit {
 
       usegs[i].centrality = std::sqrt((usegs[i].mean[0] - .5)*(usegs[i].mean[0] - .5) + (usegs[i].mean[1] - .5)*(usegs[i].mean[1] - .5))/std::sqrt(.5);
     }
+
+
+    std::vector<int> hist(numOfSegments * numOfSegments);
+
+    for (int i=0; i<numOfPixels; ++i) {
+      buildConnectHistogram(i/cols, i%cols, segments_map, hist);
+    }
+
+    for (int i=0; i<numOfSegments; ++i) {
+      for (int j=i+1; j<numOfSegments; ++j) {
+	//printf("%5d", hist[i*numOfSegments + j]);	
+	const float threshold = .1;
+	if (hist[i*numOfSegments + j] > 
+	    threshold * std::sqrt(usegs[i].boundary * usegs[j].boundary)) 
+	  {
+	    BinarySeg b;
+	    b.labels[0] = i; b.labels[1] = j;
+	    b.neighborCount = hist[i*numOfSegments + j];	  
+	  
+	    bsegs.push_back(b);
+	  }
+      }
+      //std::cout << std::endl;
+    }    
     
+    for (int i=0; i<bsegs.size(); ++i) {
+      //std::cout << bsegs[i].labels[0] << " " << bsegs[i].labels[1] << " " << bsegs[i].neighborCount << std::endl;
+    }
+
     return 0;
   }
 
@@ -202,6 +257,42 @@ namespace ya_imagekit {
     }
 
     cvtColor(lab_array, rgb_array, CV_Lab2RGB);
+
+    // draw graph
+    for (int i=0; i<bsegs.size(); ++i) {
+      // draw lines
+      line(rgb_array,
+	   usegs[bsegs[i].labels[0]].center,
+	   usegs[bsegs[i].labels[1]].center,
+	   Scalar(255,255,255));	   
+    }
+
+    Mat colorbar = Mat(1, usegs.size(), CV_8UC3);
+    Mat rgb_colorbar = colorbar.clone();
+    for (int i=0; i<usegs.size(); ++i) {
+      Vec3b &color = colorbar.at<Vec3b>(i);
+      color[0] = usegs[i].avgLab[0];
+      color[1] = usegs[i].avgLab[1];
+      color[2] = usegs[i].avgLab[2];
+    }
+    cvtColor(colorbar, rgb_colorbar, CV_Lab2RGB);
+
+    for (int i=0; i<usegs.size(); ++i) {
+      circle(rgb_array, 
+	     usegs[i].center,
+	     std::min(rgb_array.rows, rgb_array.cols)/48,
+	     Scalar(rgb_colorbar.at<Vec3b>(i)[0],
+		    rgb_colorbar.at<Vec3b>(i)[1],
+		    rgb_colorbar.at<Vec3b>(i)[2]),
+	     -1, 8
+	     );
+
+      circle(rgb_array, 
+	     usegs[i].center,
+	     std::min(rgb_array.rows, rgb_array.cols)/48,
+	     Scalar(255,255,255));
+
+    }
 
     imshow("segmentation map", rgb_array);
     printf("Press a button to continue ..."); fflush(stdout); waitKey(0);
