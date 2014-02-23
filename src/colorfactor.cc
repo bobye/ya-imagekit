@@ -191,7 +191,7 @@ namespace ya_imagekit {
     for (int i=0; i<segments_map.cols*segments_map.rows; ++i) {
       int idx = segments_map.at<int> (i);
       Vec3b &pixel = lab_array.at<Vec3b>(i);
-      if ((isShown == NULL || isShown[idx]) && usegs[idx].compactness > .5) {
+      if ((isShown == NULL || isShown[idx])) {
 	pixel[0] = std::round (usegs[idx].avgLab[0]);
 	pixel[1] = std::round (usegs[idx].avgLab[1]);
 	pixel[2] = std::round (usegs[idx].avgLab[2]);            
