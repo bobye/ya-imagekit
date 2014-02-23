@@ -1,4 +1,4 @@
-OPENCV_PATH=/usr/local
+include make.rules
 
 # Programs
 CC=
