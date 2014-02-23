@@ -33,8 +33,8 @@ namespace ya_imagekit {
     std::vector<BinarySeg> bsegs;
 
   public:
-    int read(const char * filename);
-    int createSegmentsByKmeans(int k); // k: the number of segments
+    int read(const char * filename, bool quiet = false);
+    int createSegmentsByKmeans(int k, bool quiet = false); // k: the number of segments
     int prepareSegments();
     
     static int writeSegmentSchema(FILE * fp = NULL){

@@ -5,7 +5,7 @@
 #include "util.hpp"
 
 namespace ya_imagekit {
-  int Image::read(const char * filename) {
+  int Image::read(const char * filename, bool quiet) {
     using namespace cv;
 
     rgb = cvLoadImage(filename, CV_LOAD_IMAGE_COLOR);    
@@ -19,11 +19,11 @@ namespace ya_imagekit {
     // ...
 
     // display THE image 
-
-    imshow("original image", Mat(rgb));
-    printf("Press a button to continue ..."); fflush(stdout); waitKey(0);
-    printf("[done]\n");
-
+    if (!quiet) {
+      imshow("original image", Mat(rgb));
+      printf("Press a button to continue ..."); fflush(stdout); waitKey(0);
+      printf("[done]\n");
+    }
 
     // convert to RGB to Lab space
     
@@ -33,7 +33,7 @@ namespace ya_imagekit {
     return 0;
   }
 
-  int Image::createSegmentsByKmeans(int k) {
+  int Image::createSegmentsByKmeans(int k, bool quiet) {
     using namespace cv;
     // allocate segmentation map
     
@@ -61,7 +61,7 @@ namespace ya_imagekit {
 
     segments_map = segments_array.reshape(0, lab.rows);    
 
-    printf("Lab kmeans segmentation finished!\n");
+    if (!quiet) printf("Lab kmeans segmentation finished!\n");
     return 0;
   }
 
