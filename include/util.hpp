@@ -14,8 +14,9 @@ namespace ya_imagekit {
   /** NOT USED **/
   template <class T>
   T mean(const T* array, int size) {
-    for (int i = 0, mean = 0; i < size; ++i)  mean += array[i];
-    return (T) mean/size;
+    T meanVal = 0;
+    for (int i = 0; i < size; ++i)  mean += array[i];
+    return (T) meanVal/size;
   }
 
 }
