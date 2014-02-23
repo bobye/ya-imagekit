@@ -5,7 +5,7 @@ CC=
 CXX=g++
 
 # Flags
-CFLAGS= -pedantic-errors -O2 -std=c++0x
+CFLAGS= -O2
 INCLUDES=-Iinclude/ -I$(OPENCV_PATH)/include 
 
 LIBRARIES=-L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgproc -lopencv_highgui
