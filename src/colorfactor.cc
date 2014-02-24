@@ -193,8 +193,8 @@ namespace ya_imagekit {
     for (int i=0; i<usegs.size(); ++i) {
       usegs[i].size = (float) usegs[i].area / (float) numOfPixels;
 
-      usegs[i].mean[0] =.5 + (usegs[i].center.y - rows/2) / largerBound;
-      usegs[i].mean[1] =.5 + (usegs[i].center.x - cols/2) / largerBound;
+      usegs[i].mean[0] =.5 + (float) (usegs[i].center.y - rows/2) / (float) largerBound;
+      usegs[i].mean[1] =.5 + (float) (usegs[i].center.x - cols/2) / (float) largerBound;
 
       usegs[i].dev[0] /= (float) largerBound * largerBound * (float) usegs[i].area;
       usegs[i].dev[1] = usegs[i].dev[2] /= (float) largerBound * largerBound * (float) usegs[i].area;
