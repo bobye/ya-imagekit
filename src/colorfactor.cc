@@ -144,14 +144,16 @@ namespace ya_imagekit {
 
     for (int i=0; i<numOfPixels; ++i) {
       int idx = segments_map.at<int> (i);
-      Vec3b pixel = lab.at<Vec3b>(i);
+      Vec3b &pixel = lab.at<Vec3b>(i);
 
       usegs[idx].avgLab[0] += pixel[0];
       usegs[idx].avgLab[1] += pixel[1];
       usegs[idx].avgLab[2] += pixel[2];
 
-      int a = (pixel[1] - 127), b = pixel[2] -127, L = pixel[0]*100/255;
-      usegs[idx].saturation += std::sqrt(a*a + b*b)/std::sqrt(a*a + b*b + L*L);
+      float a = pixel[1] - 128, b = pixel[2] -128, L = pixel[0]*100./255.;
+      if (L != 0 ) 
+	usegs[idx].saturation += std::sqrt(a*a + b*b)/std::sqrt(a*a + b*b + L*L);
+      else usegs[idx].saturation += 1;
 
       usegs[idx].center.y += i/cols; setOfRows[idx].push_back(i/cols);
       usegs[idx].center.x += i%cols; setOfCols[idx].push_back(i%cols);

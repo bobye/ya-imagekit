@@ -10,13 +10,13 @@ int main(int argc, char ** argv) {
     img.displaySegments();
   
     img.writeSegmentSchema();
-    img.writeSegments();
+    img.writeUnarySegments();
   }
   else if (argc == 2) {
     img.read(argv[1], true);
     img.createSegmentsByKmeans(20, true);
     img.prepareSegments();
-    img.writeSegments();
+    img.writePairSegments();
   }
 
   return 0;

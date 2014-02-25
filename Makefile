@@ -40,4 +40,4 @@ bin/extractColorFactors: $(ALL_OBJECTS)
 clean:
 	$(RM) */*.d
 	$(RM) */*.o
-	$(RM) bin/demo
+	$(RM) bin/extractColorFactors

@@ -44,13 +44,14 @@ namespace ya_imagekit {
       return 0;
     };
 
-    int writeSegments(FILE *fp = NULL){
+    int writeUnarySegments(FILE *fp = NULL){
       if (fp == NULL) fp = stdout;
 
       for (int i=0; i<usegs.size(); ++i) 
 	if (true || usegs[i].compactness > .5) {
 	  fprintf(fp,"%d\t", i);
-	  fprintf(fp,"%.0f %.0f %.0f\t", usegs[i].avgLab[0], usegs[i].avgLab[1], usegs[i].avgLab[2]);
+	  fprintf(fp,"%3.0f %3.0f %3.0f\t", usegs[i].avgLab[0] * 100 / 255, 
+		  usegs[i].avgLab[1] - 128, usegs[i].avgLab[2] - 128);
 	  fprintf(fp,"%.3f\t", usegs[i].saturation);
 	  fprintf(fp,"%.2f\t", 100*usegs[i].size);
 	  fprintf(fp,"%.2f %.2f\t", usegs[i].mean[0], usegs[i].mean[1]);
@@ -60,8 +61,27 @@ namespace ya_imagekit {
 	  fprintf(fp,"%.3f\t", usegs[i].centrality);
 	  fprintf(fp,"\n");
 	}
+
       return 0;
     };
+
+    int writePairSegments(FILE *fp = NULL) {
+      if (fp == NULL) fp = stdout;
+
+      for (int i=0; i<bsegs.size(); ++i)
+	if (true) {
+	  fprintf(fp,"%3.0f %3.0f %3.0f\t", 
+		  usegs[bsegs[i].labels[0]].avgLab[0] * 100 / 255, 
+		  usegs[bsegs[i].labels[0]].avgLab[1] - 128, 
+		  usegs[bsegs[i].labels[0]].avgLab[2] - 128);
+	  fprintf(fp,"%3.0f %3.0f %3.0f\t", 
+		  usegs[bsegs[i].labels[1]].avgLab[0] * 100 / 255, 
+		  usegs[bsegs[i].labels[1]].avgLab[1] - 128, 
+		  usegs[bsegs[i].labels[1]].avgLab[2] - 128);	  
+	  fprintf(fp,"\n");
+	}
+      return 0;
+    }
         
     int displaySegments(bool *isShown = NULL);
 
@@ -70,4 +90,6 @@ namespace ya_imagekit {
     };
   };
 }
+
+
 
