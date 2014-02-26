@@ -9,7 +9,7 @@ namespace ya_imagekit {
     using namespace cv;
 
     rgb = cvLoadImage(filename, CV_LOAD_IMAGE_COLOR);    
-    if (rgb == NULL) {printf("Image NOT loaded!\n"); return -1;}
+    if (rgb == NULL) {fprintf(stderr, "Image NOT loaded!\n"); return -1;}
 
     if (std::string(rgb->colorModel).compare("RGB") != 0) 
       {printf("Image NOT in RGB!"); return -1;};

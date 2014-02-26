@@ -2,9 +2,10 @@
 using namespace ya_imagekit;
 int main(int argc, char ** argv) {
   Image img;
+  int err;
 
   if (argc == 1) {
-    img.read("test0.jpg");
+    if (err = img.read("test0.jpg") != 0) exit(err);
     img.createSegmentsByKmeans(20);
     img.prepareSegments();
     img.displaySegments();
@@ -14,7 +15,7 @@ int main(int argc, char ** argv) {
     img.writePairSegments();
   }
   else if (argc == 2) {
-    img.read(argv[1], true);
+    if (err = img.read(argv[1], true) != 0) exit(err);
     img.createSegmentsByKmeans(20, true);
     img.prepareSegments();
     img.writePairSegments();
