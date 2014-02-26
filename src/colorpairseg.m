@@ -1,8 +1,8 @@
-
+clear
 addpath misc/jsonlab
 addpath Laplacian
 
-colorpairs = load('../cf-pairseg-westlake.txt');
+colorpairs = load('../cf-pairseg.txt');
 %jsondata = loadjson('color-themes/SharonLin-chi13/c3/data/xkcd/c3_data.json');
 %colorbins = reshape(jsondata.color, [3, length(jsondata.color)/3])';
 
@@ -34,31 +34,34 @@ end;
 
 L = L + .01*m/n * W;
 D = diag(sum(L));
+D0 = diag(sum(W));
 
+[V E] = eigs( sparse(D - L), sparse(D), 100, 'sm');
+[V0 E0] =eigs(sparse(D0 - W), sparse(D0), 100, 'sm');
 
-[V E] = eigs( sparse(D - L), sparse(D), 20, 'sm');
-V = V(:,1:end-1)*diag(1./diag(E(1:end-1,1:end-1)));
+V = V(:,1:end-1)*diag(1./diag(E(1:end-1,1:end-1).^(3/2)));
+V0 = V0(:,1:end-1)*diag(1./diag(E0(1:end-1,1:end-1).^(3/2)));
 
-idx = randi(n,1);
-sv = V(idx,:);
+%% 
+[idx d] = gettheme(2, ones(n,1), V, V0);
 
-d = repmat(sv, [size(V,1) 1]) - V; 
-d = sqrt(sum(d.^2, 2));
-d = exp( - d.^2/mean(d)^2/2);
-hist(d,30);
+if (length(idx) ~= 1) %reranking
+    [Y, eigs] = cmdscale(pdist(V(idx,:),'euclidean'));
+    [~, idxd] = sort(Y(:,1));
+    idx = idx(idxd);
+end
 
 obj.color = reshape(colordict', 1, 3*length(colordict));
-
 %obj.v = full(L(idx,:)); 
-obj.v = d';
+obj.v = (d)';
+obj.pivot = idx-1; %number from 0
 
-obj.pivot = colordict(idx,:);
-
-length(nonzeros(L(idx,:)))
-mean(d)
-colordict(idx,:)
+%length(nonzeros(L(idx,:)))
+obj.pscore = 100*mean(d).^(1/5);
+%colordict(idx,:)
 
 savejson('', obj, 'color-themes/SharonLin-chi13/c3/examples/labcount.json');
+!open color-themes/SharonLin-chi13/c3/examples/colors.html
 
 
 

@@ -28,7 +28,7 @@ function c3_init(json) {
   }
 
   c3.count = json.v;    
-  c3.pivot = d3.lab(json.pivot[0], json.pivot[1], json.pivot[2]);
+  c3.pivot = json.pivot;
 }
 
 c3.load("labcount.json");
@@ -39,7 +39,7 @@ var C = c3.color.length,
     bg = { "xkcd":  "#fff" },
     exp = 1.15,
     ww = 200,
-    sz = 5,
+    sz = 8,
     qw = location.search.length ? ~~location.search.slice(1) : -1,
     MINCOUNT = 0.;
 
@@ -90,12 +90,15 @@ function visualize(name, H) {
 
   div.append("div").text(function(d) { return "L* = "+d*5; });
 
-  svg.append("svg:rect") 
-	.attr("x",0)
+    svg.selectAll("rect.theme")
+	.data(function(Lidx) { return c3.pivot.length? d3.range(0,c3.pivot.length):[0]; })
+	.enter().append("svg:rect")
+	.attr("class", "theme")
+	.attr("x", function (d) {return d*30;})
 	.attr("y",ww-30)
 	.attr("width",30)
 	.attr("height",30)
-	.style("fill", c3.pivot);
+	.style("fill", function(d) {return c3.pivot.length? c3.color[c3.pivot[d]]: c3.color[c3.pivot];});
 
   svg.selectAll("rect.swatch")
       .data(function(Lidx) { return filtered(Lidx); })

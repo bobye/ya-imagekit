@@ -12,7 +12,7 @@ namespace ya_imagekit {
     if (rgb == NULL) {fprintf(stderr, "Image NOT loaded!\n"); return -1;}
 
     if (std::string(rgb->colorModel).compare("RGB") != 0) 
-      {printf("Image NOT in RGB!"); return -1;};
+      {fprintf(stderr, "Image NOT in RGB!"); return -1;};
 
 
     // (to implement) check if it is a color image 
