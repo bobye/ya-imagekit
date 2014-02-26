@@ -28,7 +28,7 @@ namespace ya_imagekit {
     // convert to RGB to Lab space
     
     lab = Mat(rgb->height, rgb->width, CV_8UC3);
-    cvtColor(Mat(rgb), lab, CV_RGB2Lab);
+    cvtColor(Mat(rgb), lab, CV_BGR2Lab);// data array actually is bgr,bgr,
 
     return 0;
   }
@@ -47,7 +47,7 @@ namespace ya_imagekit {
 
     pixels_array = vectorByPixels.colRange(1,4);
     pixels.reshape(1, numOfPixels).copyTo(pixels_array);
-    pixels_array.col(0) = .1 * pixels_array.col(0);//scale illuminance 
+    pixels_array.col(0) = .2 * pixels_array.col(0);//scale illuminance 
 
     int smallerBound = std::min(lab.rows,lab.cols);
     for (int i=0;i<numOfPixels;++i) {
@@ -258,7 +258,7 @@ namespace ya_imagekit {
       }
     }
 
-    cvtColor(lab_array, rgb_array, CV_Lab2RGB);
+    cvtColor(lab_array, rgb_array, CV_Lab2BGR);
 
     // draw graph
     for (int i=0; i<bsegs.size(); ++i) {
@@ -277,9 +277,10 @@ namespace ya_imagekit {
       color[1] = usegs[i].avgLab[1];
       color[2] = usegs[i].avgLab[2];
     }
-    cvtColor(colorbar, rgb_colorbar, CV_Lab2RGB);
+    cvtColor(colorbar, rgb_colorbar, CV_Lab2BGR);
 
-    for (int i=0; i<usegs.size(); ++i) {
+    for (int i=0; i<usegs.size(); ++i) 
+      if (true){
       circle(rgb_array, 
 	     usegs[i].center,
 	     std::min(rgb_array.rows, rgb_array.cols)/48,
@@ -289,12 +290,15 @@ namespace ya_imagekit {
 	     -1, 8
 	     );
 
+      //      std::cout << rgb_colorbar.at<Vec3b>(i) << std::endl;
+
       circle(rgb_array, 
 	     usegs[i].center,
 	     std::min(rgb_array.rows, rgb_array.cols)/48,
 	     Scalar(255,255,255));
 
     }
+
 
     imshow("segmentation map", rgb_array);
     printf("Press a button to continue ..."); fflush(stdout); waitKey(0);

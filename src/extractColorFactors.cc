@@ -11,6 +11,7 @@ int main(int argc, char ** argv) {
   
     img.writeSegmentSchema();
     img.writeUnarySegments();
+    img.writePairSegments();
   }
   else if (argc == 2) {
     img.read(argv[1], true);
