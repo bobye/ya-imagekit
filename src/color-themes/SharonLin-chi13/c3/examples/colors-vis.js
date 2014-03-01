@@ -39,7 +39,7 @@ var C = c3.color.length,
     bg = { "xkcd":  "#fff" },
     exp = 1.15,
     ww = 200,
-    sz = 8,
+    sz = 5,
     qw = location.search.length ? ~~location.search.slice(1) : -1,
     MINCOUNT = 0.;
 
@@ -54,7 +54,7 @@ function visualize(name, H) {
   function ss(d) {
     var s = d.s;
     var interp = ((s-minsal)/(maxsal-minsal));
-      return 0. + (sz-1)*Math.pow(interp, exp);
+      return 1.2 + (sz-1)*Math.pow(interp, exp);
   }
 
   var minsal = d3.min(data, function(d) { return d.s; }),
