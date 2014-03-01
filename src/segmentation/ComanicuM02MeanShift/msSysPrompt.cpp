@@ -52,7 +52,7 @@ Implemented by Chris M. Christoudias, Bogdan Georgescu
 
 //define bgLog
 //extern bool CmCDisplayProgress;
-bool CmCDisplayProgress = true;
+bool CmCDisplayProgress = false;
 
 void bgLog(const char *PromptStr, ...)
 {

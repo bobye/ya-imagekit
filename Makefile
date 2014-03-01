@@ -1,8 +1,8 @@
 include make.rules
 
 # Programs
-CC=
-CXX=g++
+# CC=
+# CXX=clang++
 
 # Flags
 CFLAGS= -O2

@@ -26,7 +26,7 @@ void segmentationByComanicuM02MeanShift(const IplImage *cvimage, cv::Mat &segmen
   regionCount = ip.GetRegions(&labels, &modes, &modePointCounts);
 
   
-  std::cout << regionCount << std::endl;
+  //  std::cout << regionCount << std::endl;
 
 
   typedef std::map<int, int> mapping_type;
