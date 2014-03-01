@@ -6,12 +6,14 @@ CXX=g++
 
 # Flags
 CFLAGS= -O2
-INCLUDES=-Iinclude/ -I$(OPENCV_PATH)/include 
+INCLUDES=-Iinclude/ -I$(OPENCV_PATH)/include \
+	-Isrc/segmentation/FelzenszwalbP04
 
 LIBRARIES=-L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgproc -lopencv_highgui
 
 # Files which require compiling
-SOURCE_FILES=src/colorfactor.cc
+SOURCE_FILES=src/colorfactor.cc\
+	src/segmentation/FelzenszwalbP04/segment-image-opencv.cc
 
 # Source files which contain a int main(..) function
 SOURCE_FILES_WITH_MAIN=src/extractColorFactors.cc

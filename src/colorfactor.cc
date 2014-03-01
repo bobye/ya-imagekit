@@ -4,6 +4,8 @@
 
 #include "util.hpp"
 
+#include "segment-image-opencv.h"
+
 namespace ya_imagekit {
   int Image::read(const char * filename, bool quiet) {
     using namespace cv;
@@ -36,6 +38,8 @@ namespace ya_imagekit {
   int Image::createSegmentsByKmeans(int k, bool quiet) {
     using namespace cv;
     // allocate segmentation map
+    const float luminance_reduction_ratio = .2; // [0,1]
+    const float spatial_correlation = 30.; //[0,100]
     
     // convert to data array
     Mat pixels, vectorByPixels, pixels_array, segments_array;
@@ -47,22 +51,33 @@ namespace ya_imagekit {
 
     pixels_array = vectorByPixels.colRange(1,4);
     pixels.reshape(1, numOfPixels).copyTo(pixels_array);
-    pixels_array.col(0) = .2 * pixels_array.col(0);//scale illuminance 
+    pixels_array.col(0) = luminance_reduction_ratio * pixels_array.col(0);//scale luminance 
 
     int smallerBound = std::min(lab.rows,lab.cols);
     for (int i=0;i<numOfPixels;++i) {
-      vectorByPixels.at<float>(i,3) = 30.* (float) (i/lab.cols)/ (float) (smallerBound);
-      vectorByPixels.at<float>(i,4) = 30.* (float) (i%lab.cols)/ (float) (smallerBound);
+      vectorByPixels.at<float>(i,3) = spatial_correlation * 
+	(float) (i/lab.cols)/ (float) (smallerBound);
+      vectorByPixels.at<float>(i,4) = spatial_correlation * 
+	(float) (i%lab.cols)/ (float) (smallerBound);
     }    
     
     kmeans(vectorByPixels, k, segments_array,
 	   cvTermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 50, 1.0),
 	   3, KMEANS_RANDOM_CENTERS);
 
-    segments_map = segments_array.reshape(0, lab.rows);    
+    segments_map = segments_array.reshape(0, lab.rows);// using int    
 
     if (!quiet) printf("Lab kmeans segmentation finished!\n");
-    return 0;
+    return k;
+  }
+
+
+  int Image::createSegmentsByFelzenszwalbP04(int k, bool quiet) {
+    using namespace cv;
+
+    segments_map = Mat(rgb->height, rgb->width, CV_32SC1);
+    segmentationByFelzenszwalbP04(rgb, segments_map, k);
+    return k;
   }
 
   const int window_size = 5;

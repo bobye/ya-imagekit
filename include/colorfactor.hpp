@@ -35,9 +35,18 @@ namespace ya_imagekit {
 
   public:
     int read(const char * filename, bool quiet = false);
+
+    // write segments_map
     int createSegmentsByKmeans(int k, bool quiet = false); // k: the number of segments
+
+    int createSegmentsByFelzenszwalbP04(int k, bool quiet = false);
+
+    int createSegmentsByMSA3C(int k, bool = false);
+
+    // segment quantization
     int prepareSegments();
-    
+
+    // 
     static int writeSegmentSchema(FILE * fp = NULL){
       if (fp == NULL) fp = stdout;
       fprintf(fp, "idx\tavgLab{3}\tsaturation\tsize(%%)\tmean{2}\tdev{2x2}\telongation\tcompactness\tcentrality\n");
