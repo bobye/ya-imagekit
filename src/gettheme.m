@@ -24,7 +24,7 @@ while accu>maxiter
 end
 
     function [d1] = getthemeiter(iter, d0)        
-        thres = 0.95;
+        thres = 0.7;
         d1= d0;
         accu = accu +1;
         if accu > maxiter            

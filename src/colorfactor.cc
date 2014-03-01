@@ -309,19 +309,21 @@ namespace ya_imagekit {
       if (true){
       circle(rgb_array, 
 	     usegs[i].center,
-	     std::min(rgb_array.rows, rgb_array.cols)/48,
+	     std::log(1+sqrt(usegs[i].size)*100) + std::min(rgb_array.rows, rgb_array.cols)/48,
 	     Scalar(rgb_colorbar.at<Vec3b>(i)[0],
 		    rgb_colorbar.at<Vec3b>(i)[1],
 		    rgb_colorbar.at<Vec3b>(i)[2]),
-	     -1, 8
+	     -1, 16
 	     );
 
       //      std::cout << rgb_colorbar.at<Vec3b>(i) << std::endl;
 
       circle(rgb_array, 
 	     usegs[i].center,
-	     std::min(rgb_array.rows, rgb_array.cols)/48,
-	     Scalar(255,255,255));
+	     std::log(1+sqrt(usegs[i].size)*100) + std::min(rgb_array.rows, rgb_array.cols)/48,
+	     Scalar(255,255,255),
+	     1, 16
+	     );
 
     }
 

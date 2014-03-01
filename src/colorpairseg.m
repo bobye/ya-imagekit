@@ -33,20 +33,22 @@ for i = 1: size(A_i)
 end;
 
 %L0 = repmat(full(sum(L))/n, [n, 1]);
-L = L + .1*m/n * W;
+D = sum(L);
+L = diag(sqrt(1./D)) * L * diag(sqrt(1./D));
+L =  L + 0.05 * W;
 L0 = W;
 D = diag(sum(L));
 D0 = diag(sum(L0));
 
 [V E] = eigs( sparse(D - L), sparse(D), 100, 'sm');
-[V0 E0] =eigs(sparse(D0 - L0), sparse(D0), 100, 'sm');
+[V0 E0] =eigs(sparse(D0 - L0), sparse(D), 100, 'sm');
 
-V = V(:,1:end-1)*diag(1./diag(E(1:end-1,1:end-1).^(8/2)));
-V0 = V0(:,1:end-1)*diag(1./diag(E0(1:end-1,1:end-1).^(3/2)));
+V = V(:,2:end-1)*diag(1./diag(E(2:end-1,2:end-1).^(7/2)));
+V0 = V0(:,2:end-1)*diag(1./diag(E0(2:end-1,2:end-1).^(3/2)));
 
 %% 
-%[idx d] = gettheme(1, ones(n,1), V, V0, [2500]);
-[idx d] = gettheme(1, ones(n,1), V, V0);
+[idx d] = gettheme(1, ones(n,1), V, V0, [3670]);
+%[idx d] = gettheme(1, ones(n,1), V, V0);
 
 if (length(idx) ~= 1) %reranking
     [Y, eigs] = cmdscale(pdist(V(idx,:),'euclidean'));
