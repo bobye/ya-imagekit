@@ -39,9 +39,9 @@ namespace ya_imagekit {
     // write segments_map
     int createSegmentsByKmeans(int k, bool quiet = false); // k: the number of segments
 
-    int createSegmentsByFelzenszwalbP04(int k, bool quiet = false);
+    int createSegmentsByFelzenszwalbP04(int k, bool quiet = false); // k: auto computed
 
-    int createSegmentsByMSA3C(int k, bool = false);
+    int createSegmentsByComanicuM02MeanShift(int k, bool quiet = false); // k: auto computed
 
     // segment quantization
     int prepareSegments();

@@ -5,6 +5,7 @@
 #include "util.hpp"
 
 #include "segment-image-opencv.h"
+#include "msImageProcessor_interface.h"
 
 namespace ya_imagekit {
   int Image::read(const char * filename, bool quiet) {
@@ -79,6 +80,16 @@ namespace ya_imagekit {
     segmentationByFelzenszwalbP04(rgb, segments_map, k);
     return k;
   }
+
+  int Image::createSegmentsByComanicuM02MeanShift(int k, bool quiet) {
+    using namespace cv;
+
+    segments_map = Mat(rgb->height, rgb->width, CV_32SC1);
+    segmentationByComanicuM02MeanShift(rgb, segments_map, k);
+    return k;
+  }
+  
+
 
   const int window_size = 5;
   const int threshold = 5;

@@ -162,9 +162,9 @@ void segmentationByFelzenszwalbP04(const IplImage *cvimage, cv::Mat &segments_ma
   //savePPM(im,"converted.ppm");
 
   int num_ccs;
-  int *classes = new int [width * height];
+  int *labels = new int [width * height];
 
-  segment_image(im, .5, 500, width*height*.001, &num_ccs, classes);
+  segment_image(im, .5, 500, width*height*.001, &num_ccs, labels);
 
 
 
@@ -174,12 +174,12 @@ void segmentationByFelzenszwalbP04(const IplImage *cvimage, cv::Mat &segments_ma
  
   int index = 0;
   for (int i=0; i<width*height; ++i) {
-    mapping_iter = mappings.find(classes[i]);
+    mapping_iter = mappings.find(labels[i]);
 
     if (mapping_iter != mappings.end()){
-      segments_map.at<int>(i) = mappings[classes[i]];
+      segments_map.at<int>(i) = mappings[labels[i]];
     }else {
-      mappings[classes[i]] = index; 
+      mappings[labels[i]] = index; 
       segments_map.at<int>(i) = index;
       index ++;
     }
@@ -187,7 +187,7 @@ void segmentationByFelzenszwalbP04(const IplImage *cvimage, cv::Mat &segments_ma
   k = index;
   //std::cout << index << std::endl;
 
-  delete [] classes;
+  delete [] labels;
 
 }
 
