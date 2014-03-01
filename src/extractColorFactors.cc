@@ -19,7 +19,7 @@ int main(int argc, char ** argv) {
   }
   else if (argc == 2) {
     if (err = img.read(argv[1], true) != 0) exit(err);
-    img.createSegmentsByKmeans(20, true);
+    img.createSegmentsByFelzenszwalbP04(20);
     img.prepareSegments();
     img.writePairSegments();
   }
