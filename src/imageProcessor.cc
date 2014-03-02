@@ -23,7 +23,7 @@ namespace ya_imagekit {
     // display THE image 
     if (!quiet) {
       imshow("original image", Mat(rgb));
-      printf("Press a button to continue ..."); fflush(stdout); waitKey(0);
+      printf("Press a button to continue ..."); fflush(stdout); //waitKey(0);
       printf("[done]\n");
     }
 
@@ -90,6 +90,9 @@ namespace ya_imagekit {
   
 
 
+  /*********************************************************************/
+  // Post Processing
+
   const int window_size = 5;
   const int threshold = 5;
 
@@ -135,36 +138,47 @@ namespace ya_imagekit {
 
     return count >= threshold;
   }
-  /*
-  void Image::restoreSpatialAttributes(const std::set<int> &setOfIndex, float *p) {
+
+  void Image::restoreSpatialAttributes(const std::set<int> &setOfIndex, BinarySeg & bseg) {
     using namespace cv;
     int rows = segments_map.rows, cols = segments_map.cols;
     int numOfPixels = rows * cols;
 
-    Mat markedPixels = Mat(rows, cols, CV_32SC1, 0);
-    float &size = p[0], 
-      *mean = p+1,
-      *dev = p+3, //2x2 matrix
-      &compactness = p[7],
-      &elongation = p[8],
-      &centrality = p[9];
+    Mat markedPixels = Mat(rows, cols, CV_32SC1, Scalar(0));
+    
+
 
     for (std::set<int>::iterator i=setOfIndex.begin(); i!=setOfIndex.end(); ++i) {
-
-      for (int j=0; j<numOfPixels; ++j) 
-	if (segments_map.at<int>(j) ==  *i)
+      for (int j=0; j<numOfPixels; ++j) {
+	if (segments_map.at<int>(j) ==  *i) {
 	  markedPixels.at<int>(j) = 1;
+	}
+      }
     }    
-  }
-  */
-  void Image::restoreSpatialAttributes() {
-    using namespace cv;
+
+    std::vector<UnarySeg>  tworegions;
+    restoreSpatialAttributes(markedPixels, tworegions);
+
+
+    bseg.size = tworegions[1].size; 
+    bseg.mean[0] = tworegions[1].mean[0];
+    bseg.mean[1] = tworegions[1].mean[1];
+    bseg.dev[0]= tworegions[1].dev[0];
+    bseg.dev[1]= tworegions[1].dev[1];
+    bseg.dev[2]= tworegions[1].dev[2];
+    bseg.dev[3]= tworegions[1].dev[3];
+
+    bseg.compactness = tworegions[1].compactness;
+    bseg.elongation = tworegions[1].elongation;
+    bseg.centrality = tworegions[1].centrality;
+
+    //bseg.print(stdout);
+
   }
 
-  int Image::prepareSegments() {
+  void Image::restoreSpatialAttributes(const cv::Mat &segments_map, std::vector<UnarySeg> & usegs) {
+  //  void Image::restoreSpatialAttributes() {
     using namespace cv;
-    if (segments_map.empty()) {printf("Empty Segmentation Map"); return -1;}
-
     double minVal, maxVal, numOfSegments;
     minMaxLoc(segments_map, &minVal, &maxVal);
     numOfSegments = maxVal +1;
@@ -251,13 +265,19 @@ namespace ya_imagekit {
 
       usegs[i].centrality = std::sqrt((usegs[i].mean[0] - .5)*(usegs[i].mean[0] - .5) + (usegs[i].mean[1] - .5)*(usegs[i].mean[1] - .5))/std::sqrt(.5);
     }
+  }
 
-    restoreSpatialAttributes();
+  int Image::prepareSegments() {
+    using namespace cv;
+    if (segments_map.empty()) {printf("Empty Segmentation Map"); return -1;}
 
-    /*
+
+    restoreSpatialAttributes(segments_map, usegs);
+
+
     int rows = segments_map.rows, cols = segments_map.cols;
     int numOfSegments = usegs.size(), numOfPixels = rows * cols;
-    */
+
     std::vector<int> hist(numOfSegments * numOfSegments);
 
     for (int i=0; i<numOfPixels; ++i) {
@@ -279,11 +299,24 @@ namespace ya_imagekit {
       }
       //std::cout << std::endl;
     }    
-    
+
+    // compute context region for two segments
+    /*
+    std::vector<std::set<int> > setOfNeighbors (numOfSegments);
     for (int i=0; i<bsegs.size(); ++i) {
-      //std::cout << bsegs[i].labels[0] << " " << bsegs[i].labels[1] << " " << bsegs[i].neighborCount << std::endl;
+      setOfNeighbors[bsegs[i].labels[0]].insert(bsegs[i].labels[1]);
+      setOfNeighbors[bsegs[i].labels[1]].insert(bsegs[i].labels[0]);
     }
 
+    for (int i=0; i<bsegs.size(); ++i) {
+      std::set<int> set;
+      set.insert(setOfNeighbors[bsegs[i].labels[0]].begin(), 
+		 setOfNeighbors[bsegs[i].labels[0]].end());
+      set.insert(setOfNeighbors[bsegs[i].labels[1]].begin(), 
+		 setOfNeighbors[bsegs[i].labels[1]].end());
+      restoreSpatialAttributes(set, bsegs[i]);
+    }
+    */
     return 0;
   }
 

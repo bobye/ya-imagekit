@@ -13,8 +13,8 @@ namespace ya_imagekit {
     
     // spatial attributes:
     float size, 
-      mean[2]={},
-      dev[4]={}, //2x2 matrix
+      mean[2],
+      dev[4], //2x2 matrix
       compactness,
       elongation,
       centrality;
@@ -33,16 +33,18 @@ namespace ya_imagekit {
       fprintf(fp,"%6.3f ", centrality);
       fprintf(fp,"\n");
     }
+
+
   };  
   
   struct BinarySeg {
     int labels[2];
     int neighborCount; // the number of neighboring pixels between two segments
 
-    //float p[10];//spatial attribute of surrounding
+    //spatial attribute of surrounding
     float size, 
-      mean[2]={},
-      dev[4]={}, //2x2 matrix
+      mean[2],
+      dev[4], //2x2 matrix
       compactness,
       elongation,
       centrality;
@@ -57,9 +59,10 @@ namespace ya_imagekit {
       fprintf(fp,"%6.3f ", compactness);
       fprintf(fp,"%6.3f ", centrality);
       fprintf(fp,"\n");
-    }
+    }    
 
   };
+
 
 
   //const UnarySeg EmptyUnarySeg;
@@ -94,11 +97,18 @@ namespace ya_imagekit {
     int prepareSegments();
 
     // 
-    static int writeSegmentSchema(FILE * fp = NULL){
+    static int writeUnarySegmentSchema(FILE * fp = NULL){
       if (fp == NULL) fp = stdout;
-      fprintf(fp, "idx -- avgLab{3} saturation -- size(%%) mean{2} dev{2x2} elongation compactness centrality\n");
+      fprintf(fp, "idx -- avgLab{3} saturation -- size(ent) mean{2} dev{2x2} elongation compactness centrality\n");
       return 0;
     };
+
+    static int writeBinarySegmentSchema(FILE * fp = NULL){
+      if (fp == NULL) fp = stdout;
+      fprintf(fp, "idx1 idx2 -- size(ent) mean{2} dev{2x2} elongation compactness centrality\n");
+      return 0;
+    };
+
 
     int writeUnarySegments(FILE *fp = NULL){
       if (fp == NULL) fp = stdout;
@@ -111,7 +121,7 @@ namespace ya_imagekit {
       return 0;
     };
 
-    int writePairSegments(FILE *fp = NULL) {
+    int writeBinarySegments(FILE *fp = NULL) {
       if (fp == NULL) fp = stdout;
 
       for (int i=0; i<bsegs.size(); ++i)
@@ -139,9 +149,9 @@ namespace ya_imagekit {
     };
 
   private:
-    void restoreSpatialAttributes(const std::set<int> &setOfIndex, float *p);
+    void restoreSpatialAttributes(const std::set<int> &setOfIndex, BinarySeg &);
     void restoreSpatialAttributes(const cv::Mat &, std::vector<UnarySeg> & );
-    void restoreSpatialAttributes();
+
 
   };
 }

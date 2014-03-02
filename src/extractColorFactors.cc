@@ -5,7 +5,7 @@ int main(int argc, char ** argv) {
   int err;
 
   if (argc == 1) {
-    if (err = img.read("test0.jpg") != 0) exit(err);
+    if ((err = img.read("test0.jpg")) != 0) exit(err);
     //    img.createSegmentsByKmeans(20);
     std::cout << img.createSegmentsByFelzenszwalbP04(20) << std::endl;
     //std::cout << img.createSegmentsByComanicuM02MeanShift(20) << std::endl;
@@ -13,15 +13,18 @@ int main(int argc, char ** argv) {
     img.prepareSegments();
     img.displaySegments();
   
-    img.writeSegmentSchema();
+    img.writeUnarySegmentSchema();
     img.writeUnarySegments();
-    img.writePairSegments();
+    img.writeBinarySegmentSchema();
+    img.writeBinarySegments();
   }
   else if (argc == 2) {
-    if (err = img.read(argv[1], true) != 0) exit(err);
+    if ((err = img.read(argv[1], true)) != 0) exit(err);
     img.createSegmentsByFelzenszwalbP04(20);
     img.prepareSegments();
-    img.writePairSegments();
+    img.writeUnarySegments();
+    img.writeBinarySegments();
+    //img.writePairSegments();
   }
 
   return 0;
