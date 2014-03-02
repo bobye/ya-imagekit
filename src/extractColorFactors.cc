@@ -7,8 +7,8 @@ int main(int argc, char ** argv) {
   if (argc == 1) {
     if (err = img.read("test0.jpg") != 0) exit(err);
     //    img.createSegmentsByKmeans(20);
-    //std::cout << img.createSegmentsByFelzenszwalbP04(20) << std::endl;
-    std::cout << img.createSegmentsByComanicuM02MeanShift(20) << std::endl;
+    std::cout << img.createSegmentsByFelzenszwalbP04(20) << std::endl;
+    //std::cout << img.createSegmentsByComanicuM02MeanShift(20) << std::endl;
 
     img.prepareSegments();
     img.displaySegments();

@@ -135,7 +135,31 @@ namespace ya_imagekit {
 
     return count >= threshold;
   }
+  /*
+  void Image::restoreSpatialAttributes(const std::set<int> &setOfIndex, float *p) {
+    using namespace cv;
+    int rows = segments_map.rows, cols = segments_map.cols;
+    int numOfPixels = rows * cols;
 
+    Mat markedPixels = Mat(rows, cols, CV_32SC1, 0);
+    float &size = p[0], 
+      *mean = p+1,
+      *dev = p+3, //2x2 matrix
+      &compactness = p[7],
+      &elongation = p[8],
+      &centrality = p[9];
+
+    for (std::set<int>::iterator i=setOfIndex.begin(); i!=setOfIndex.end(); ++i) {
+
+      for (int j=0; j<numOfPixels; ++j) 
+	if (segments_map.at<int>(j) ==  *i)
+	  markedPixels.at<int>(j) = 1;
+    }    
+  }
+  */
+  void Image::restoreSpatialAttributes() {
+    using namespace cv;
+  }
 
   int Image::prepareSegments() {
     using namespace cv;
@@ -147,8 +171,9 @@ namespace ya_imagekit {
 
     // initialize segments
     for (int i=0; i < numOfSegments; ++i) {
-      UnarySeg s; 
-      s.label=i;s.area=0;
+
+      UnarySeg s;
+      s.label = i;s.area = 0; 
       s.avgLab[0] = s.avgLab[1] = s.avgLab[2] =0;
       s.saturation = 0;
       s.center = cv::Point(0,0);//s.mean[0]= s.mean[1] =0;
@@ -223,16 +248,22 @@ namespace ya_imagekit {
       usegs[i].mean[0] =.5 + (float) (usegs[i].center.y - rows/2) / (float) largerBound;
       usegs[i].mean[1] =.5 + (float) (usegs[i].center.x - cols/2) / (float) largerBound;
 
-      usegs[i].dev[0] /= (float) largerBound * largerBound * (float) usegs[i].area;
-      usegs[i].dev[1] = usegs[i].dev[2] /= (float) largerBound * largerBound * (float) usegs[i].area;
-      usegs[i].dev[3] /= (float) largerBound * largerBound * (float) usegs[i].area;
+      float normalize = usegs[i].area * usegs[i].area;
+      usegs[i].dev[0] = std::tanh(usegs[i].dev[0] / normalize);
+      usegs[i].dev[1] = usegs[i].dev[2] = std::tanh(usegs[i].dev[2] / normalize); 
+      usegs[i].dev[3] = std::tanh (usegs[i].dev[3] / normalize);
 
 
 
       usegs[i].centrality = std::sqrt((usegs[i].mean[0] - .5)*(usegs[i].mean[0] - .5) + (usegs[i].mean[1] - .5)*(usegs[i].mean[1] - .5))/std::sqrt(.5);
     }
 
+    restoreSpatialAttributes();
 
+    /*
+    int rows = segments_map.rows, cols = segments_map.cols;
+    int numOfSegments = usegs.size(), numOfPixels = rows * cols;
+    */
     std::vector<int> hist(numOfSegments * numOfSegments);
 
     for (int i=0; i<numOfPixels; ++i) {
@@ -248,9 +279,8 @@ namespace ya_imagekit {
 	  {
 	    BinarySeg b;
 	    b.labels[0] = i; b.labels[1] = j;
-	    b.neighborCount = hist[i*numOfSegments + j];	  
-	  
-	    bsegs.push_back(b);
+	    b.neighborCount = hist[i*numOfSegments + j];	  	  
+	    bsegs.push_back(b); 
 	  }
       }
       //std::cout << std::endl;
