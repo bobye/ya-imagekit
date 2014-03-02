@@ -29,6 +29,7 @@ namespace ya_imagekit {
   class Image {
     IplImage *rgb;
     cv::Mat lab, segments_map;
+    cv::Mat context_aware_saliency_map;
 
     std::vector<UnarySeg> usegs;
     std::vector<BinarySeg> bsegs;
@@ -42,6 +43,11 @@ namespace ya_imagekit {
     int createSegmentsByFelzenszwalbP04(int k, bool quiet = false); // k: auto computed
 
     int createSegmentsByComanicuM02MeanShift(int k, bool quiet = false); // k: auto computed
+
+    // write context_aware_saliency_map
+    int createSaliencyByContextAware(const char* filename) { //read from files
+      return 0;
+    }
 
     // segment quantization
     int prepareSegments();
