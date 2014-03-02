@@ -1,4 +1,4 @@
-#include "colorfactor.hpp"
+#include "imageProcessor.hh"
 using namespace ya_imagekit;
 int main(int argc, char ** argv) {
   Image img;

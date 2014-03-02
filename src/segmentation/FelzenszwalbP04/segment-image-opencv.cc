@@ -5,7 +5,7 @@
 #include <filter.h>
 #include "segment-graph.h"
 //#include "segment-image.h"
-#include "segment-image-opencv.h"
+#include "3rdparty.h"
 
 #include <pnmfile.h>
 // random color

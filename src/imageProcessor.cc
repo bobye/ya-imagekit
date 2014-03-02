@@ -1,11 +1,10 @@
-#include "colorfactor.hpp"
+#include "imageProcessor.hh"
 #include <stdio.h>
 #include <opencv/highgui.h>
 
-#include "util.hpp"
+#include "util.hh"
 
-#include "segment-image-opencv.h"
-#include "msImageProcessor_interface.h"
+#include "3rdparty.h"
 
 namespace ya_imagekit {
   int Image::read(const char * filename, bool quiet) {

@@ -13,7 +13,7 @@ INCLUDES=-Iinclude/ -I$(OPENCV_PATH)/include \
 LIBRARIES=-L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgproc -lopencv_highgui
 
 # Files which require compiling
-SOURCE_FILES=src/colorfactor.cc\
+SOURCE_FILES=src/imageProcessor.cc\
 	src/segmentation/FelzenszwalbP04/segment-image-opencv.cc\
 	src/segmentation/ComanicuM02MeanShift/msImageProcessor_interface.cc
 

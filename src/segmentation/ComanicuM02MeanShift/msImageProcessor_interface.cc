@@ -1,5 +1,5 @@
 #include "msImageProcessor.h"
-#include "msImageProcessor_interface.h"
+#include "3rdparty.h"
 #include <opencv/highgui.h>
 
 void segmentationByComanicuM02MeanShift(const IplImage *cvimage, cv::Mat &segments_map, int &k) {
