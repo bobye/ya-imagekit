@@ -12,24 +12,28 @@ namespace ya_imagekit {
     float avgLab[3], saturation;
     
     // spatial attributes:
-    //float p[10];
     float size, 
-      mean[2],
-      dev[4], //2x2 matrix
+      mean[2]={},
+      dev[4]={}, //2x2 matrix
       compactness,
       elongation,
       centrality;
-    /*
-    UnarySeg(): size(p[0]),
-		     mean(p+1),
-		     dev(p+3),
-		     compactness(p[7]),
-		     elongation(p[8]),
-		     centrality(p[9]) {};
-    UnarySeg &operator = (const UnarySeg &that) {return *this;}
-    */
-  };
 
+
+    void print(FILE* fp) {
+      fprintf(fp,"%3d -- ", label);
+      fprintf(fp,"%6.3f %6.3f %6.3f ", avgLab[0] / 255., 
+	      (avgLab[1] - 128.)/128., (avgLab[2] - 128.)/128.);
+      fprintf(fp,"%6.3f -- ", saturation);
+      fprintf(fp,"%6.3f ", -size*log2(size));
+      fprintf(fp,"%6.3f %6.3f ", mean[0], mean[1]);
+      fprintf(fp,"%6.3f %6.3f %6.3f %6.3f ", dev[0], dev[1], dev[2], dev[3]);
+      fprintf(fp,"%6.3f ", elongation);
+      fprintf(fp,"%6.3f ", compactness);
+      fprintf(fp,"%6.3f ", centrality);
+      fprintf(fp,"\n");
+    }
+  };  
   
   struct BinarySeg {
     int labels[2];
@@ -37,22 +41,24 @@ namespace ya_imagekit {
 
     //float p[10];//spatial attribute of surrounding
     float size, 
-      mean[2],
-      dev[4], //2x2 matrix
+      mean[2]={},
+      dev[4]={}, //2x2 matrix
       compactness,
       elongation,
       centrality;
 
-    /*
-    BinarySeg(): size(p[0]),
-		     mean(p+1),
-		     dev(p+3),
-		     compactness(p[7]),
-		     elongation(p[8]),
-		     centrality(p[9]) {};
 
-    BinarySeg &operator = (const BinarySeg &that) {return *this;}
-    */
+    void print(FILE* fp) {
+      fprintf(fp, "%3d %3d -- ", labels[0], labels[1]);
+      fprintf(fp,"%6.3f ", -size*log2(size));
+      fprintf(fp,"%6.3f %6.3f ", mean[0], mean[1]);
+      fprintf(fp,"%6.3f %6.3f %6.3f %6.3f ", dev[0], dev[1], dev[2], dev[3]);
+      fprintf(fp,"%6.3f ", elongation);
+      fprintf(fp,"%6.3f ", compactness);
+      fprintf(fp,"%6.3f ", centrality);
+      fprintf(fp,"\n");
+    }
+
   };
 
 
@@ -90,7 +96,7 @@ namespace ya_imagekit {
     // 
     static int writeSegmentSchema(FILE * fp = NULL){
       if (fp == NULL) fp = stdout;
-      fprintf(fp, "idx\tavgLab{3}\tsaturation\tsize(%%)\tmean{2}\tdev{2x2}\telongation\tcompactness\tcentrality\n");
+      fprintf(fp, "idx -- avgLab{3} saturation -- size(%%) mean{2} dev{2x2} elongation compactness centrality\n");
       return 0;
     };
 
@@ -99,17 +105,7 @@ namespace ya_imagekit {
 
       for (int i=0; i<usegs.size(); ++i) 
 	if (true || usegs[i].compactness > .5) {
-	  fprintf(fp,"%3d ", i);
-	  fprintf(fp,"%6.3f %6.3f %6.3f ", usegs[i].avgLab[0] / 255., 
-		  (usegs[i].avgLab[1] - 128.)/128., (usegs[i].avgLab[2] - 128.)/128.);
-	  fprintf(fp,"%6.3f ", usegs[i].saturation);
-	  fprintf(fp,"%6.3f ", -usegs[i].size*log2(usegs[i].size));
-	  fprintf(fp,"%6.3f %6.3f ", usegs[i].mean[0], usegs[i].mean[1]);
-	  fprintf(fp,"%6.3f %6.3f %6.3f %6.3f ", usegs[i].dev[0], usegs[i].dev[1], usegs[i].dev[2], usegs[i].dev[3]);
-	  fprintf(fp,"%6.3f ", usegs[i].elongation);
-	  fprintf(fp,"%6.3f ", usegs[i].compactness);
-	  fprintf(fp,"%6.3f ", usegs[i].centrality);
-	  fprintf(fp,"\n");
+	  usegs[i].print(fp);
 	}
 
       return 0;
@@ -120,7 +116,7 @@ namespace ya_imagekit {
 
       for (int i=0; i<bsegs.size(); ++i)
 	if (true) {
-	  fprintf(fp, "%d %d\n", bsegs[i].labels[0], bsegs[i].labels[1]);
+	  bsegs[i].print(fp);
 	  /*
 	  fprintf(fp,"%3.0f %3.0f %3.0f\t", 
 		  usegs[bsegs[i].labels[0]].avgLab[0] * 100 / 255, 

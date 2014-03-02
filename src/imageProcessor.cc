@@ -171,15 +171,9 @@ namespace ya_imagekit {
 
     // initialize segments
     for (int i=0; i < numOfSegments; ++i) {
-
-      UnarySeg s;
-      s.label = i;s.area = 0; 
-      s.avgLab[0] = s.avgLab[1] = s.avgLab[2] =0;
-      s.saturation = 0;
-      s.center = cv::Point(0,0);//s.mean[0]= s.mean[1] =0;
-      s.dev[0]=s.dev[1]=s.dev[2]=s.dev[3]=0;
-      s.boundary = 0;
-      usegs.push_back(s);
+      
+      //      UnarySeg u;
+      usegs.push_back(UnarySeg()); usegs.back().label = i;
     }
 
 
