@@ -3,79 +3,82 @@
 #include <cmath>
 
 namespace ya_imagekit {
-  struct UnarySeg {
-    int label;
-    int area, boundary;    
-    cv::Point center;
 
-    // color properties
-    float avgLab[3], saturation;
-    
-    // spatial attributes:
-    float size, 
-      mean[2],
-      dev[4], //2x2 matrix
-      compactness,
-      elongation,
-      centrality;
-
-
-    void print(FILE* fp) {
-      fprintf(fp,"%3d -- ", label);
-      fprintf(fp,"%6.3f %6.3f %6.3f ", avgLab[0] / 255., 
-	      (avgLab[1] - 128.)/128., (avgLab[2] - 128.)/128.);
-      fprintf(fp,"%6.3f -- ", saturation);
-      fprintf(fp,"%6.3f ", -size*log2(size));
-      fprintf(fp,"%6.3f %6.3f ", mean[0], mean[1]);
-      fprintf(fp,"%6.3f %6.3f %6.3f %6.3f ", dev[0], dev[1], dev[2], dev[3]);
-      fprintf(fp,"%6.3f ", elongation);
-      fprintf(fp,"%6.3f ", compactness);
-      fprintf(fp,"%6.3f ", centrality);
-      fprintf(fp,"\n");
-    }
-
-
-  };  
-  
-  struct BinarySeg {
-    int labels[2];
-    int neighborCount; // the number of neighboring pixels between two segments
-
-    //spatial attribute of surrounding
-    float size, 
-      mean[2],
-      dev[4], //2x2 matrix
-      compactness,
-      elongation,
-      centrality;
-
-
-    void print(FILE* fp) {
-      fprintf(fp, "%3d %3d -- ", labels[0], labels[1]);
-      fprintf(fp,"%6.3f ", -size*log2(size));
-      fprintf(fp,"%6.3f %6.3f ", mean[0], mean[1]);
-      fprintf(fp,"%6.3f %6.3f %6.3f %6.3f ", dev[0], dev[1], dev[2], dev[3]);
-      fprintf(fp,"%6.3f ", elongation);
-      fprintf(fp,"%6.3f ", compactness);
-      fprintf(fp,"%6.3f ", centrality);
-      fprintf(fp,"\n");
-    }    
-
-  };
-
-
-
-  //const UnarySeg EmptyUnarySeg;
-  //const BinarySeg EmptyBinarySeg;
-
+  using namespace cv;
+  using namespace std;
 
   class Image {
-    IplImage *rgb;
-    cv::Mat lab, segments_map;
-    cv::Mat context_aware_saliency_map;
+    
+    /* data structure of segments (unary and binary)
+     */
+    struct UnarySeg {
+      int label;
+      int area, boundary;    
+      Point center;
 
-    std::vector<UnarySeg> usegs;
-    std::vector<BinarySeg> bsegs;
+      // color properties
+      float avgLab[3], saturation;
+    
+      // spatial attributes:
+      float size, 
+	mean[2],
+	dev[4], //2x2 matrix
+	compactness,
+	elongation,
+	centrality;
+
+
+      void print(FILE* fp) {
+	fprintf(fp,"%3d -- ", label);
+	fprintf(fp,"%6.3f %6.3f %6.3f ", avgLab[0] / 255., 
+		(avgLab[1] - 128.)/128., (avgLab[2] - 128.)/128.);
+	fprintf(fp,"%6.3f -- ", saturation);
+	fprintf(fp,"%6.3f ", -size*log2(size));
+	fprintf(fp,"%6.3f %6.3f ", mean[0], mean[1]);
+	fprintf(fp,"%6.3f %6.3f %6.3f %6.3f ", dev[0], dev[1], dev[2], dev[3]);
+	fprintf(fp,"%6.3f ", elongation);
+	fprintf(fp,"%6.3f ", compactness);
+	fprintf(fp,"%6.3f ", centrality);
+	fprintf(fp,"\n");
+      }
+
+
+    };  
+  
+    struct BinarySeg {
+      int labels[2];
+      int neighborCount; // the number of neighboring pixels between two segments
+
+      //spatial attribute of surrounding
+      float size, 
+	mean[2],
+	dev[4], //2x2 matrix
+	compactness,
+	elongation,
+	centrality;
+
+
+      void print(FILE* fp) {
+	fprintf(fp, "%3d %3d -- ", labels[0], labels[1]);
+	fprintf(fp,"%6.3f ", -size*log2(size));
+	fprintf(fp,"%6.3f %6.3f ", mean[0], mean[1]);
+	fprintf(fp,"%6.3f %6.3f %6.3f %6.3f ", dev[0], dev[1], dev[2], dev[3]);
+	fprintf(fp,"%6.3f ", elongation);
+	fprintf(fp,"%6.3f ", compactness);
+	fprintf(fp,"%6.3f ", centrality);
+	fprintf(fp,"\n");
+      }    
+
+    };
+
+    IplImage *rgb; // image read
+    Mat lab; // image in lab space
+    Mat segments_map; // segmentation: pixel => (int) index of segments
+    Mat edge_mask, boundary_mask;
+    Mat context_aware_saliency_map; 
+
+    vector<UnarySeg> usegs; // unary segments
+    vector<BinarySeg> bsegs; // segment pairs
 
   public:
     int read(const char * filename, bool quiet = false);
@@ -95,6 +98,7 @@ namespace ya_imagekit {
 
     // segment quantization
     int prepareSegments();
+    int prepareEdges();
 
     // 
     static int writeUnarySegmentSchema(FILE * fp = NULL){
@@ -142,15 +146,15 @@ namespace ya_imagekit {
       return 0;
     }
         
-    int displaySegments(bool *isShown = NULL);
+    int displaySegments(bool *isShown = NULL, bool isDrawGraph = false);
 
-    ~Image() {
-      cvReleaseImage(&rgb); 
-    };
+    int reSamplingPixelsFromSeg();
+
+    ~Image();
 
   private:
-    void restoreSpatialAttributes(const std::set<int> &setOfIndex, BinarySeg &);
-    void restoreSpatialAttributes(const cv::Mat &, std::vector<UnarySeg> & );
+    void restoreSpatialAttributes(const set<int> &setOfIndex, BinarySeg &);
+    void restoreSpatialAttributes(const Mat &, vector<UnarySeg> & );
 
 
   };

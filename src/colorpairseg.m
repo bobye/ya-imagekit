@@ -47,7 +47,7 @@ V = V(:,2:end-1)*diag(1./diag(E(2:end-1,2:end-1).^(7/2)));
 V0 = V0(:,2:end-1)*diag(1./diag(E0(2:end-1,2:end-1).^(3/2)));
 
 %% 
-[idx d] = gettheme(1, ones(n,1), V, V0, [3670]);
+[idx d] = gettheme(1, ones(n,1), V, V0, [1939]);
 %[idx d] = gettheme(1, ones(n,1), V, V0);
 
 if (length(idx) ~= 1) %reranking

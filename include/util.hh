@@ -1,3 +1,6 @@
+#ifndef _UTIL_H_
+#define _UTIL_H_
+
 #include <algorithm>    // std::sort
 
 namespace ya_imagekit {
@@ -18,5 +21,14 @@ namespace ya_imagekit {
     for (int i = 0; i < size; ++i)  mean += array[i];
     return (T) meanVal/size;
   }
+  
+  inline void map2arr(int * index_arr, int size, int index, std::vector<int> &indices) {
+    indices.empty();
+    for (int i=0; i<size; ++i)
+      if (index_arr[i] == index) 
+	indices.push_back(i);
+    return;
+  }
 
 }
+#endif /* _UTIL_H_ */

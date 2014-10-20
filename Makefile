@@ -5,15 +5,19 @@ include make.rules
 # CXX=clang++
 
 # Flags
-CFLAGS= -O2
-INCLUDES=-Iinclude/ -I$(OPENCV_PATH)/include \
+CFLAGS= -O2 
+INCLUDES=-Iinclude/ -I$(OPENCV_PATH)/include -I/usr/X11/include \
 	-Isrc/segmentation/FelzenszwalbP04 \
 	-Isrc/segmentation/ComanicuM02MeanShift
 
-LIBRARIES=-L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgproc -lopencv_highgui
+LIBRARIES=-L$(OPENCV_PATH)/lib \
+	-lopencv_core -lopencv_imgproc -lopencv_highgui\
+	 -framework OpenGL
 
 # Files which require compiling
 SOURCE_FILES=src/imageProcessor.cc\
+	src/imageProcessor_segmentation.cc\
+	src/imageProcessor_resample.cc\
 	src/segmentation/FelzenszwalbP04/segment-image-opencv.cc\
 	src/segmentation/ComanicuM02MeanShift/msImageProcessor_interface.cc
 
