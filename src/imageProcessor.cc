@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <opencv/highgui.h>
-#include <GL/gl.h>
+//#include <GL/gl.h>
 
 
 
@@ -14,7 +14,7 @@ namespace ya_imagekit {
 
   Image::~Image() {      
     // take screenshot of results and save to disk
-
+    /*
     setOpenGlContext("take screenshot");	
     
     Mat img(new_window_position_x, rgb->height, CV_8UC3);
@@ -26,7 +26,7 @@ namespace ya_imagekit {
     Mat flipped(img);
     flip(img, flipped, 0);
     imwrite((image_filename + "-snapshot.png").c_str(), img);
-
+    */
     // release memory
     destroyAllWindows();
     cvReleaseImage(&rgb); 
