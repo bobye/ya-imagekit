@@ -14,6 +14,7 @@ namespace ya_imagekit {
     struct UnarySeg {
       int label;
       int area, boundary;    
+      int bbx_x1, bbx_y1, bbx_x2, bbx_y2;
       Point center;
 
       // color properties
@@ -46,8 +47,9 @@ namespace ya_imagekit {
     };  
   
     struct BinarySeg {
-      int labels[2];
+      int labels[2]; // the indices for usegs
       int neighborCount; // the number of neighboring pixels between two segments
+      int bbx_x1, bbx_y1, bbx_x2, bbx_y2;
 
       //spatial attribute of surrounding
       float size, 
@@ -58,7 +60,7 @@ namespace ya_imagekit {
 	centrality;
 
 
-      void print(FILE* fp) {
+      void print(FILE* fp) {	
 	fprintf(fp, "%3d %3d -- ", labels[0], labels[1]);
 	fprintf(fp,"%6.3f ", -size*log2(size));
 	fprintf(fp,"%6.3f %6.3f ", mean[0], mean[1]);
@@ -119,6 +121,7 @@ namespace ya_imagekit {
 
       for (int i=0; i<usegs.size(); ++i) 
 	if (true || usegs[i].compactness > .5) {
+	  fprintf(fp, "%3d:", i);
 	  usegs[i].print(fp);
 	}
 
@@ -130,6 +133,7 @@ namespace ya_imagekit {
 
       for (int i=0; i<bsegs.size(); ++i)
 	if (true) {
+	  fprintf(fp, "%3d:", i);
 	  bsegs[i].print(fp);
 	  /*
 	  fprintf(fp,"%3.0f %3.0f %3.0f\t", 
@@ -146,9 +150,12 @@ namespace ya_imagekit {
       return 0;
     }
         
-    int displaySegments(bool *isShown = NULL, bool isDrawGraph = false);
+    Mat displaySegments(bool *isShown = NULL, bool isDrawGraph = false);
 
     int reSamplingPixelsFromSeg();
+
+    int exportSubSegmentMaps(string path);
+    int computeSuperGradient(string path);
 
     ~Image();
 

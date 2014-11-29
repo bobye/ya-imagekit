@@ -49,7 +49,7 @@ namespace ya_imagekit {
     // ...
 
     // display THE image 
-    if (!quiet) {
+    if (!quiet && false) {
       imshow("original image", Mat(rgb));
       moveWindow("original image", new_window_position_x, new_window_position_y);
       new_window_position_x += rgb->width;

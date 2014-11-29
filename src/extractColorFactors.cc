@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "imageProcessor.hh"
 using namespace ya_imagekit;
 int main(int argc, char ** argv) {
@@ -11,9 +12,20 @@ int main(int argc, char ** argv) {
   //std::cout << img.createSegmentsByComanicuM02MeanShift(200) << std::endl;
 
   img.prepareSegments();
-  img.displaySegments();
 
-  img.reSamplingPixelsFromSeg();
+  FILE * binaryStatFile = fopen("bstatfile.txt", "w");
+  img.writeBinarySegments(binaryStatFile);
+  fclose(binaryStatFile);
+
+  //  img.reSamplingPixelsFromSeg();
+
+
+  string tmpPath("subseg_map");
+  system((string("rm ") + tmpPath + "/*").c_str());
+  img.exportSubSegmentMaps(tmpPath);
+  system("/Applications/MATLAB_R2012a.app/bin/matlab -nojvm -r 'computeRelativeDistance;exit'");
+  img.computeSuperGradient(tmpPath);
+
 
   /*
     img.writeUnarySegmentSchema();

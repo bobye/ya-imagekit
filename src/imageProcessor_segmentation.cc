@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <opencv/highgui.h>
+#include <stdlib.h>
 
 #include "util.hh"
 #include "3rdparty.h"
@@ -163,7 +164,12 @@ namespace ya_imagekit {
     for (int i=0; i < numOfSegments; ++i) {
       
       //      UnarySeg u;
-      usegs.push_back(UnarySeg()); usegs.back().label = i;
+      usegs.push_back(UnarySeg()); 
+      usegs.back().label = i;
+      usegs.back().bbx_x1 = 100000; 
+      usegs.back().bbx_y1 = 100000;
+      usegs.back().bbx_x2 = 0;
+      usegs.back().bbx_y2 = 0;
     }
 
 
@@ -182,6 +188,12 @@ namespace ya_imagekit {
     for (int i=0; i<numOfPixels; ++i) {
       int idx = segments_map.at<int> (i);
       Vec3b &pixel = lab.at<Vec3b>(i);
+
+      int x = i % cols, y = i / cols; //opencv mat is row major
+      if (x < usegs[idx].bbx_x1)   usegs[idx].bbx_x1 = x;
+      if (x > usegs[idx].bbx_x2-1) usegs[idx].bbx_x2 = x + 1;
+      if (y < usegs[idx].bbx_y1)   usegs[idx].bbx_y1 = y;
+      if (y > usegs[idx].bbx_y2-1) usegs[idx].bbx_y2 = y + 1;
 
       usegs[idx].avgLab[0] += pixel[0];
       usegs[idx].avgLab[1] += pixel[1];
@@ -274,9 +286,14 @@ namespace ya_imagekit {
 	    threshold * std::sqrt(usegs[i].boundary * usegs[j].boundary)) 
 	  {
 	    BinarySeg b;
-	    b.labels[0] = i; b.labels[1] = j;
+	    b.labels[0] = i; b.labels[1] = j; // set labels/indices
 	    b.neighborCount = hist[i*numOfSegments + j];	  	  
 	    bsegs.push_back(b); 
+	    bsegs.back().bbx_x1 = std::min(usegs[i].bbx_x1, usegs[j].bbx_x1);
+	    bsegs.back().bbx_x2 = std::max(usegs[i].bbx_x2, usegs[j].bbx_x2);
+	    bsegs.back().bbx_y1 = std::min(usegs[i].bbx_y1, usegs[j].bbx_y1);
+	    bsegs.back().bbx_y2 = std::max(usegs[i].bbx_y2, usegs[j].bbx_y2);
+	    
 	  }
       }
       //std::cout << std::endl;
@@ -302,16 +319,19 @@ namespace ya_imagekit {
     return 0;
   }
 
-  int Image::displaySegments(bool *isShown, bool isDrawGraph) {
+  Mat Image::displaySegments(bool *isShown, bool isDrawGraph) {
     using namespace cv;
-    if (usegs.size() == 0 ) {printf("No Segments!\n"); return -1;}
+    assert (usegs.size() > 0 );
+    int rows = lab.rows;
+    int cols = lab.cols;
+
 
     Mat lab_array = lab.clone();
     Mat rgb_array = Mat(rgb, true);
 
-    for (int i=0; i<segments_map.cols*segments_map.rows; ++i) {
+    for (int i=0; i<cols*rows; ++i) {
       int idx = segments_map.at<int> (i);
-     Vec3b &pixel = lab_array.at<Vec3b>(i);
+      Vec3b &pixel = lab_array.at<Vec3b>(i);
       if ((isShown == NULL || isShown[idx])) {
 	pixel[0] = round (usegs[idx].avgLab[0]);
 	pixel[1] = round (usegs[idx].avgLab[1]);
@@ -326,7 +346,8 @@ namespace ya_imagekit {
 
     // draw graph
     if (isDrawGraph) {
-    for (int i=0; i<bsegs.size(); ++i) {
+    for (int i=0; i<bsegs.size(); ++i) 
+    if (false){
       // draw lines
       line(rgb_array,
 	   usegs[bsegs[i].labels[0]].center,
@@ -345,7 +366,7 @@ namespace ya_imagekit {
     cvtColor(colorbar, rgb_colorbar, CV_Lab2BGR);
 
     for (int i=0; i<usegs.size(); ++i) 
-      if (true){
+      if (false){
       circle(rgb_array, 
 	     usegs[i].center,
 	     std::log(1+sqrt(usegs[i].size)*100) + std::min(rgb_array.rows, rgb_array.cols)/48,
@@ -364,17 +385,33 @@ namespace ya_imagekit {
 	     1, 16
 	     );
 
-    }
+      }else {
+	stringstream ss; ss<< i;
+	string text = ss.str();
+	int fontFace = FONT_HERSHEY_COMPLEX_SMALL;
+	double fontScale = 0.5;
+	int thickness = 1;
+	int baseline=0;
+
+	Size textSize = getTextSize(text, fontFace,
+				    fontScale, thickness, &baseline);
+
+	putText(rgb_array, text, 
+		Point(usegs[i].center.x - textSize.width/2, 
+		      usegs[i].center.y + textSize.height/2),
+		fontFace, fontScale, Scalar::all(255), thickness, CV_AA);
+      }
     }
 
+    /*
     imshow("segmentation map", rgb_array);
     moveWindow("segmentation map", new_window_position_x, new_window_position_y);
     new_window_position_x += rgb_array.cols;
 
     printf("Press a button to continue ..."); fflush(stdout); waitKey(0);
     printf("[done]\n");
-
-    return 0;
+    */
+    return rgb_array;
   }
 
 }

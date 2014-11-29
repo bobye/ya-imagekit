@@ -1,1 +1,2 @@
 OPENCV_PATH=/usr/local
+MOSEK=$(HOME)/mosek/7/tools/platform/osx64x86
