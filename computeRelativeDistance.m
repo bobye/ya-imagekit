@@ -19,6 +19,8 @@ F = ones(size(L));
 [I, J]= find(L == -1);
 T2 = msfm2d(F, [I,J]', true, true);
 
+T1 = T1-0.5; T1(T1<0) = 0;
+T2 = T2-0.5; T2(T2<0) = 0;
 T = T2 - T1;
 
 dlmwrite([name, '-d.dat'], T, 'delimiter', ' ');

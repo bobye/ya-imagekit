@@ -13,7 +13,7 @@
 namespace ya_imagekit {
 
 
-  const int sizeT = 8;
+  const int sizeT = 19;
   const double h = 3.0;
 
   void superGradient(int d, int n, int m, 
@@ -119,21 +119,26 @@ namespace ya_imagekit {
     Mat seg_map = displaySegments(NULL, true);
 
 
+    // retrieve the indices of pixels by segments
     std::vector< std::vector<int> > indices(usegs.size());
     for (int i=0; i<usegs.size(); ++i) {
       map2arr((int*) segments_map.data, numOfPixels, i, indices[i]);
     }
 
-    d2_solver_setup();
+    
+    d2_solver_setup(); // setup LP solvers
     for (int k = 0; k<bsegs.size(); ++k) {
 
-      if (k != 53 && k != 148) continue;
+      if (k != 320 && k != 148) continue; // select superpixel pairs
 
       const int i0 = bsegs[k].labels[0]; 
       const int i1 = bsegs[k].labels[1];
+
+      // indices of pixels from the two superpixels.
       std::vector<int> bnd(indices[i0]); 
       bnd.insert( bnd.end(), indices[i1].begin(), indices[i1].end() );
 
+      // output bounding box
       printf("%d %d\n", i0, i1);
       printf("%d %d %d %d\n", bsegs[k].bbx_x1, bsegs[k].bbx_x2, bsegs[k].bbx_y1, bsegs[k].bbx_y2);
 
@@ -152,12 +157,13 @@ namespace ya_imagekit {
       const int sub_width = bsegs[k].bbx_x2 - bsegs[k].bbx_x1;
       const int sub_height= bsegs[k].bbx_y2 - bsegs[k].bbx_y1;
       const int sub_num_pixels = sub_width * sub_height;
-
+      
       std::vector<double> path_distance(sub_num_pixels);
       for (int i = 0; i < sub_num_pixels; ++i) {
 	fin >> path_distance[i];
       }
       fin.close();
+      std::cout << "load relative distances from " << filepath << std::endl;
 
       for (int i = 0; i < n+m; ++i) {
 	int local_x = bnd[i] % cols - sub_base_x;
@@ -207,6 +213,40 @@ namespace ya_imagekit {
 	  T.at<uchar>(local_y, local_x + (sizeT+1)*sub_width) = 
 	    255 - 255 * (path_distance[j] - dmin) / (dmax - dmin);	
       }
+
+
+      /* graph relative distance and tcurve */
+      dmax = *std::max_element(distance.begin(), distance.end()); // reset max distance
+      dmin = *std::min_element(distance.begin(), distance.end()); // reset min distance
+
+      const int intervals = 20;
+      std::vector<double> signature((sizeT+1) * intervals, 0);
+      std::vector<int> interval_counts(intervals, 0);
+      for (int j=0; j< sub_num_pixels; ++j)  {
+	int idx = (intervals * (path_distance[j] - dmin)) / (dmax - dmin + 0.01);
+	interval_counts[idx] ++;
+      }
+      for (int i=0; i<=sizeT; ++i) {
+	for (int j=0; j< sub_num_pixels; ++j) {
+	  int idx = (intervals * (path_distance[j] - dmin)) / (dmax - dmin + 0.01);	  
+	  double &val = tcurve[j + i*sub_num_pixels];
+	  signature[idx + i*intervals] += tcurve[j + i*sub_num_pixels];
+	}
+	for (int j=0; j< intervals; ++j)
+	  signature[j + i*intervals] /= (double) interval_counts[j];
+      }
+      char filename2[255]; sprintf(filename2, "/bseg_sig-%d-d.dat", k); 
+      string filepath2(path); 
+      ofstream fout(filepath2.append(filename2)); 
+      for (int i=0; i<=sizeT; ++i) {
+	for (int j=0; j<intervals; ++j)
+	  fout << signature[j + i*intervals] << " ";
+	fout << std::endl;
+      }
+      fout.close();
+      std::cout << "save signature to " << filepath2 << std::endl;
+
+
       
       /* ad-hoc draw boundingbox*/
       rectangle(rgb2, 
