@@ -109,7 +109,7 @@ double d2_match_by_distmat(int n, int m, double *C, double *wX, double *wY,
   /* Create the optimization task. */
   r = MSK_maketask(env,numcon,numvar,&task);
   if ( r==MSK_RES_OK ) {
-    //r = MSK_linkfunctotaskstream(task,MSK_STREAM_LOG,NULL,printstr);
+    // r = MSK_linkfunctotaskstream(task,MSK_STREAM_LOG,NULL,printstr);
   }
 
   r = MSK_appendcons(task,numcon);
@@ -219,6 +219,10 @@ double d2_match_by_distmat(int n, int m, double *C, double *wX, double *wY,
         }
       }
     }
+
+  MSK_deletetask(&task);
+  free(asub);
+
   return fval;
 }
 
