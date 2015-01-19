@@ -9,7 +9,7 @@ height = size(Image,2);
 AllPoints = reshape(Image, width*height, 3);
 
 %% solve relative distance
-disp 'compute relative spatial coordinates ... '
+%disp 'compute relative spatial coordinates ... '
 % load fast marching method lib
 addpath('../src/fastmarching/KroonFM_version3b/functions/');
 
@@ -41,11 +41,10 @@ D = D(:);
 Dmax = max(D);
 Dmin = min(D);
 
-disp '[done]'
 %% build transportation
-disp 'solve transportation problem ... '
 n = size(P1,1);
 m = size(P2,1);
+%fprintf(1, 'solve transportation problem ... %d %d', n, m);
 
 % ---build-in linprog ---
 %f = pdist2(P1,P2,'sqeuclidean');
@@ -81,33 +80,36 @@ w = w.sol.bas.xx;
 w(w<1E-10) = 0;
 w = sparse(reshape(w, n, m));
 
-disp '[done]';
-
 %% build signature
-disp 'build up histogram ... '
+%disp 'build up histogram ... '
 sizeT = 20;
 sizeD = 20;
 h = 3.;
 sig = zeros(sizeT, sizeD);
+IDX = floor((D - Dmin)*sizeD /(Dmax - Dmin + 1E-2));
+W = w(w>0); % weights of interpolated points
+P = cell(sizeT);
 for i=1:sizeT
     [I, J] = find(w);
-    P = P1(I,:) * (sizeT-i)/(sizeT-1) + P2(J,:) * (i-1)/(sizeT-1); % interpolated distribution
-    W = w(w>0); % weights of interpolated points
+    P{i} = P1(I,:) * (sizeT-i)/(sizeT-1) + P2(J,:) * (i-1)/(sizeT-1); % interpolated distribution
+end
+Q = cell(sizeD);
+C = cell(sizeD);
+for j=1:sizeD
+    [Qt, ~, k] = unique(AllPoints(IDX == (j-1),:), 'rows');
+    C{j} = histc(k, 1:size(Qt,1));
+    Q{j} = double(Qt);
+end
+for i=1:sizeT
     for j=1:sizeD
-        IDX = floor((D - Dmin)*sizeD /(Dmax - Dmin + 1E-2)) == (j-1);
-        [Q, ~, k] = unique(AllPoints(IDX(:),:), 'rows');
-        C = histc(k, 1:size(Q,1));
-        Q = double(Q);
-        if (~isempty(Q))
+        if (~isempty(Q{j}))
             tmp = sum(...
                 bsxfun(@times, ...
-                exp( - pdist2(P, Q, 'sqeuclidean') / (2*h*h)), W));
-            sig(i, j) = tmp * C / sum(C);
+                exp( - pdist2(P{i}, Q{j}, 'sqeuclidean') / (2*h*h)), W));
+            sig(i, j) = tmp * C{j} / sum(C{j});
         end
     end
 end
-
-disp '[done]'
 
 end
 

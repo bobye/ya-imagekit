@@ -5,6 +5,7 @@ addpath(genpath('../src/misc/MatlabFns/'));
 %% Load image
 
 im = imread('image.png');
+im = imresize(im, 256 / sqrt(size(im,1) * size(im,2)));
 
 %% Compute superpixels
 tic;
@@ -24,6 +25,8 @@ n = length(I);
 %% compute signatures
 disp 'start computing signatures ...'
 gradient = zeros(20,20,n);
+im = uint8(rgb2lab(im));
+reverseStr = '';
 for i=1:n
     left = I(i); right = J(i);
     [I1, J1] = find(l == left | l == right);
@@ -36,9 +39,18 @@ for i=1:n
     Label(leftI) = -1;
     Label(rightI) = 1;
     Label(~(leftI | rightI)) = 0;
-    tic;gradient(:,:,i) = superPixelGrad(ROI, Label);toc;
+    gradient(:,:,i) = superPixelGrad(ROI, Label);
     %show(drawregionboundaries(Label, ROI, [255 255 255]));
     %figure;imshow(-kron(gradient(:,:,i), ones(10)), []);
     %pause;
+   
+    % Display the progress
+    percentDone = 100 * i / n;
+    msg = sprintf('Percent done: %3.1f', percentDone); %Don't forget this semicolon
+    fprintf([reverseStr, msg]);
+    reverseStr = repmat(sprintf('\b'), 1, length(msg));    
 end
 disp '[done]'
+
+%% save results
+save image.gradient.mat gradient

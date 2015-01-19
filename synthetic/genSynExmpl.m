@@ -28,7 +28,7 @@ image_rgb = uint8(image_rgb);
 height= size(image_rgb,1);
 width = size(image_rgb,2);
 %% calcuate signatures
-gradient = superPixelGrad(image_rgb, [-ones(height, width/2), ones(height, width/2)]);
+tic;gradient = superPixelGrad(image_rgb, [-ones(height, width/2), ones(height, width/2)]);toc;
 
 %% display result
 figure; imshow(-kron(gradient, ones(10)), []);
