@@ -9,8 +9,8 @@ im = imread('image.png');
 %% Compute superpixels
 tic;
 disp 'compute superpixels ... '
-[l, Am, Sp, d] = slic(im, 200, 20, 1., 'median');
-show(drawregionboundaries(l, im, [255 255 255]));
+[l, Am, Sp, d] = slic(im, 100, 20, 1., 'median');
+%show(drawregionboundaries(l, im, [255 255 255]));
 disp '[done]'
 toc;
 
@@ -22,8 +22,8 @@ J = J(isChosen);
 n = length(I);
 
 %% compute signatures
-disp 'start computing signatures'
-tic;
+disp 'start computing signatures ...'
+gradient = zeros(20,20,n);
 for i=1:n
     left = I(i); right = J(i);
     [I1, J1] = find(l == left | l == right);
@@ -36,12 +36,9 @@ for i=1:n
     Label(leftI) = -1;
     Label(rightI) = 1;
     Label(~(leftI | rightI)) = 0;
-    gradient = superPixelGrad(ROI, Label);
-    figure;
-    show(drawregionboundaries(Label, ROI, [255 255 255]));
-    figure;
-    imshow(-kron(gradient, ones(10)), []);
-    pause;
+    tic;gradient(:,:,i) = superPixelGrad(ROI, Label);toc;
+    %show(drawregionboundaries(Label, ROI, [255 255 255]));
+    %figure;imshow(-kron(gradient(:,:,i), ones(10)), []);
+    %pause;
 end
 disp '[done]'
-toc;

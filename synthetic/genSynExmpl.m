@@ -20,7 +20,7 @@ image_rgb(:,:,3) = (255*mat2gray(image1(:,:,3)));
 image_rgb = uint8(image_rgb);
 
 %% second example
-image_rgb = imread('blog08.png');
+%image_rgb = imread('blog08.png');
 %image_rgb = imread('Bezold Effect.jpg');
 %image_rgb = imread('albers-654.jpg');
 %image_rgb = imread('08color2.jpg'); image_rgb = image_rgb(181:end,:,:);

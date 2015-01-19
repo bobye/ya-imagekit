@@ -9,6 +9,7 @@ height = size(Image,2);
 AllPoints = reshape(Image, width*height, 3);
 
 %% solve relative distance
+disp 'compute relative spatial coordinates ... '
 % load fast marching method lib
 addpath('../src/fastmarching/KroonFM_version3b/functions/');
 
@@ -40,25 +41,50 @@ D = D(:);
 Dmax = max(D);
 Dmin = min(D);
 
+disp '[done]'
 %% build transportation
+disp 'solve transportation problem ... '
+n = size(P1,1);
+m = size(P2,1);
 
-n = size(P1,1)
-m = size(P2,1)
-f = pdist2(P1,P2,'sqeuclidean');
-A = zeros(n+m, n*m);
-for k=1:n
-    A(k, k:n:(n*m)) = 1;
-end
-for k=1:m
-    A(n+k, (k-1)*n + (1:n)) = 1;
-end
+% ---build-in linprog ---
+%f = pdist2(P1,P2,'sqeuclidean');
+%A = zeros(n+m, n*m);
+%for k=1:n
+%    A(k, k:n:(n*m)) = 1;
+%end
+%for k=1:m
+%    A(n+k, (k-1)*n + (1:n)) = 1;
+%end
+%
+%A = sparse(A);
+%tic;
+%options = optimoptions('linprog', 'Algorithm', 'simplex');
+%[w, ~] = linprog(f(:), [], [], A, [C1'/sum(C1), C2'/sum(C2)], zeros(n*m,1), [], []);
+%toc;
 
-A = sparse(A);
+% --- Mosek solver ---
+addpath('/gpfs/work/j/jxy198/software/mosek/7/toolbox/r2013a/');
+prob.c = pdist2(P1,P2,'sqeuclidean'); prob.c = prob.c(:);
+subi = [repmat(1:n, 1, m), reshape(repmat((1:m) + n, n, 1), 1, n*m)];
+subj = [1:(n*m), 1:(n*m)];
+valij = ones(1,2*n*m);
+prob.a = sparse(subi, subj, valij);
+prob.blc = [C1/sum(C1); C2/sum(C2)];
+prob.buc = prob.blc;
+prob.blx = sparse(n*m, 1);
+prob.bux = [];
+param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_PRIMAL_SIMPLEX'; 
+[~, w] = mosekopt('minimize echo(0)', prob, param);
 
-[w, ~] = linprog(f(:), [], [], A, [C1'/sum(C1), C2'/sum(C2)], zeros(n*m,1), []);
+w = w.sol.bas.xx;
 w(w<1E-10) = 0;
 w = sparse(reshape(w, n, m));
 
+disp '[done]';
+
+%% build signature
+disp 'build up histogram ... '
 sizeT = 20;
 sizeD = 20;
 h = 3.;
@@ -81,6 +107,7 @@ for i=1:sizeT
     end
 end
 
+disp '[done]'
 
 end
 
