@@ -5,8 +5,8 @@ function [ sig ] = superPixelGrad( Image, Label )
 
 width = size(Image,1);
 height = size(Image,2);
-pixels = width * height;
-AllPoints = reshape(Image, pixels, 3);
+
+AllPoints = reshape(Image, width*height, 3);
 
 %% solve relative distance
 % load fast marching method lib
@@ -17,7 +17,7 @@ F = ones(size(Label));
 [I, J]= find(Label == 1);
 T1 = msfm2d(F, [I,J]', true, true);
 IDX = sub2ind([width, height], I, J);
-P1 = AllPoints(IDX);
+P1 = AllPoints(IDX, :);
 [P1, ~, k] = unique(P1, 'rows');
 C1 = histc(k, 1:size(P1,1));
 P1 = double(P1);
@@ -27,7 +27,7 @@ F = ones(size(Label));
 [I, J]= find(Label == -1);
 T2 = msfm2d(F, [I,J]', true, true);
 IDX = sub2ind([width, height], I, J);
-P2 = AllPoints(IDX);
+P2 = AllPoints(IDX, :);
 [P2, ~, k] = unique(P2, 'rows');
 C2 = histc(k, 1:size(P2,1));
 P2 = double(P2);
@@ -42,8 +42,8 @@ Dmin = min(D);
 
 %% build transportation
 
-n = size(P1,1);
-m = size(P2,1);
+n = size(P1,1)
+m = size(P2,1)
 f = pdist2(P1,P2,'sqeuclidean');
 A = zeros(n+m, n*m);
 for k=1:n
@@ -69,7 +69,7 @@ for i=1:sizeT
     W = w(w>0); % weights of interpolated points
     for j=1:sizeD
         IDX = floor((D - Dmin)*sizeD /(Dmax - Dmin + 1E-2)) == (j-1);
-        [Q, ~, k] = unique(AllPoints(IDX(:)), 'rows');
+        [Q, ~, k] = unique(AllPoints(IDX(:),:), 'rows');
         C = histc(k, 1:size(Q,1));
         Q = double(Q);
         if (~isempty(Q))
