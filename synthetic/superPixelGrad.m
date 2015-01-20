@@ -74,11 +74,15 @@ prob.buc = prob.blc;
 prob.blx = sparse(n*m, 1);
 prob.bux = [];
 param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_PRIMAL_SIMPLEX'; 
-[~, w] = mosekopt('minimize echo(0)', prob, param);
+[rcode, w] = mosekopt('minimize echo(0)', prob, param);
 
-w = w.sol.bas.xx;
-w(w<1E-10) = 0;
-w = sparse(reshape(w, n, m));
+try
+    w = w.sol.bas.xx;
+    w(w<1E-10) = 0;
+    w = sparse(reshape(w, n, m));
+catch
+    fprintf('MSKERROR: Could not get solution');
+end
 
 %% build signature
 %disp 'build up histogram ... '
@@ -86,12 +90,20 @@ sizeT = 20;
 sizeD = 20;
 h = 3.;
 sig = zeros(sizeT, sizeD);
+
+if (rcode ~= 0)
+    return;
+end
+
 IDX = floor((D - Dmin)*sizeD /(Dmax - Dmin + 1E-2));
-W = w(w>0); % weights of interpolated points
+W = w(w>=1E-10); % weights of interpolated points
 P = cell(sizeT);
 for i=1:sizeT
     [I, J] = find(w);
     P{i} = P1(I,:) * (sizeT-i)/(sizeT-1) + P2(J,:) * (i-1)/(sizeT-1); % interpolated distribution
+    if(size(P{i},1) ~= length(W))
+       return;
+    end
 end
 Q = cell(sizeD);
 C = cell(sizeD);

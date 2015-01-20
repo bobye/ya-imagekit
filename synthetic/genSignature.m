@@ -1,11 +1,14 @@
-clear;
+function [] = genSignature(filename)
 
+[pathstr, name, ~] = fileparts(filename);
 addpath(genpath('../src/misc/MatlabFns/'));
 
 %% Load image
 
-im = imread('image.png');
-im = imresize(im, 256 / sqrt(size(im,1) * size(im,2)));
+im = imread(filename);
+im = imresize(im, min(256 / sqrt(size(im,1) * size(im,2)), 1.0));
+
+disp filename
 
 %% Compute superpixels
 tic;
@@ -25,8 +28,9 @@ n = length(I);
 %% compute signatures
 disp 'start computing signatures ...'
 gradient = zeros(20,20,n);
-im = uint8(rgb2lab(im));
+im = lab2uint8(rgb2lab(im));
 reverseStr = '';
+tic;
 for i=1:n
     left = I(i); right = J(i);
     [I1, J1] = find(l == left | l == right);
@@ -51,6 +55,7 @@ for i=1:n
     reverseStr = repmat(sprintf('\b'), 1, length(msg));    
 end
 disp '[done]'
+toc;
 
 %% save results
-save image.gradient.mat gradient
+save([pathstr '/../westlake2-sig256/' name '.supgrad.mat'], 'gradient');
