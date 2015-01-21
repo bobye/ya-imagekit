@@ -97,7 +97,7 @@ end
 
 Dbound = max(-Dmin, Dmax);
 IDX = floor((D + Dbound)*sizeD /(2*Dbound + 1E-2));
-W = w(w>=1E-10); % weights of interpolated points
+W = w(w>=1E-10); W = reshape(W, length(W), 1); % weights of interpolated points
 P = cell(sizeT);
 for i=1:sizeT
     [I, J] = find(w);
