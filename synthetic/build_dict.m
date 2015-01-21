@@ -1,7 +1,7 @@
 clear;
 %% set hyper-parameters
 dim = 400;
-max_size = 100000;
+max_size = 120000;
 voc_size = 200;
 
 %%
@@ -30,7 +30,7 @@ tic;[idx,C] = kmeans(features,voc_size, 'Display', 'iter');toc;
 save voc.mat features idx C
 
 %%
-display_network(-C', true, false);
+display_network(-C', true, true);
 
 %%
 disp 'bag of words ...'
@@ -54,7 +54,12 @@ end
 %%
 disp 'clustering images ...'
 image_path='/gpfs/group/w/wang/jianbo/paintings/westlake2/';
-[image_label, image_center] = kmeans(featVec, 10);
+
+[image_label, image_center] = kmeans(featVec, 15);
+
+%Y=pdist(featVec, 'cosine');Z=linkage(Y);dendrogram(Z);
+%[image_label] = cluster(Z,'maxclust',100);
+%%
 for i=1:length(names)
     names(i).label = image_label(i);
     [~, tmp, ~] = fileparts(names(i).name);

@@ -95,8 +95,7 @@ if (rcode ~= 0)
     return;
 end
 
-Dbound = max(-Dmin, Dmax);
-IDX = floor((D + Dbound)*sizeD /(2*Dbound + 1E-2));
+IDX = floor((D - Dmin)*sizeD /(Dmax -Dmin + 1E-2));
 W = w(w>=1E-10); W = reshape(W, length(W), 1); % weights of interpolated points
 P = cell(sizeT);
 for i=1:sizeT
@@ -109,7 +108,7 @@ end
 Q = cell(sizeD);
 C = cell(sizeD);
 for j=1:sizeD
-    [Qt, ~, k] = unique(AllPoints(IDX == (j-1),:), 'rows');
+    [Qt, ~, k] = unique(AllPoints(IDX == (j-1) & Label(:) ~=0 ,:), 'rows');
     C{j} = histc(k, 1:size(Qt,1));
     Q{j} = double(Qt);
 end

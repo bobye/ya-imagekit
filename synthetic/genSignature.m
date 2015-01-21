@@ -13,7 +13,7 @@ disp(filename);
 %% Compute superpixels
 tic;
 disp 'compute superpixels ... '
-[l, Am, Sp, d] = slic(im, 100, 20, 1., 'median');
+[l, Am, Sp, d] = slic(im, 150, 30, 1., 'median');
 %show(drawregionboundaries(l, im, [255 255 255]));
 disp '[done]'
 toc;
@@ -58,4 +58,4 @@ disp '[done]'
 toc;
 
 %% save results
-save([pathstr '/../westlake2-sig256/' name '.supgrad.mat'], 'gradient');
+save([pathstr '/../westlake2-sig256_new/' name '.supgrad.mat'], 'gradient');
