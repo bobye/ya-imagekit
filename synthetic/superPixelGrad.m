@@ -95,7 +95,8 @@ if (rcode ~= 0)
     return;
 end
 
-IDX = floor((D - Dmin)*sizeD /(Dmax - Dmin + 1E-2));
+Dbound = max(-Dmin, Dmax);
+IDX = floor((D + Dbound)*sizeD /(2*Dbound + 1E-2));
 W = w(w>=1E-10); % weights of interpolated points
 P = cell(sizeT);
 for i=1:sizeT

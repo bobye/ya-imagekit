@@ -8,7 +8,7 @@ addpath(genpath('../src/misc/MatlabFns/'));
 im = imread(filename);
 im = imresize(im, min(256 / sqrt(size(im,1) * size(im,2)), 1.0));
 
-disp filename
+disp(filename);
 
 %% Compute superpixels
 tic;
