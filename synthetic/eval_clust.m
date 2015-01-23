@@ -1,7 +1,7 @@
 function [ ent, mu ] = eval_clust( names, featVec )
 %
 
-cluster_size = 5:5:50;
+cluster_size = 5:5:140;
 artists= unique({names.author});
 label_map=zeros(length(names),1);
 

@@ -6,8 +6,8 @@ height= 20;
 width = 40;
 %f = @(x) x;
 %f = @(x) x + 0.3*(rand(size(x))-0.5);
-f = @(x) (x>0.5);
-%f = @(x) (x>0.5) + 0.3*(rand(size(x))-0.5);
+%f = @(x) (x>0.5);
+f = @(x) (x>0.5) + 0.3*(rand(size(x))-0.5);
 
 
 image1 = zeros([height, width, 3]); image1(:,:,3) = 1.0;  

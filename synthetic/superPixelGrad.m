@@ -96,7 +96,7 @@ if (rcode ~= 0)
 end
 
 IDX = floor((D - Dmin)*sizeD /(Dmax -Dmin + 1E-2));
-W = w(w>=1E-10); W = reshape(W, length(W), 1); % weights of interpolated points
+W = w(w>=1E-10); W = full(reshape(W, length(W), 1)); % weights of interpolated points
 P = cell(sizeT);
 for i=1:sizeT
     [I, J] = find(w);
@@ -117,7 +117,7 @@ for i=1:sizeT
         if (~isempty(Q{j}))
             tmp = sum(...
                 bsxfun(@times, ...
-                exp( - pdist2(P{i}, Q{j}, 'sqeuclidean') / (2*h*h)), W));
+                exp( - pdist2(P{i}, Q{j}, 'sqeuclidean') / (2*h*h)), W), 1);
             sig(i, j) = tmp * C{j} / sum(C{j});
         end
     end

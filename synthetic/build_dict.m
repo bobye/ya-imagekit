@@ -48,37 +48,3 @@ save voc.mat features idx C
 
 %%
 display_network(-C', true, false);
-
-%%
-disp 'bag of words ...'
-load voc.mat
-
-avg_dist = zeros(voc_size, 1);
-for i=1:voc_size
-    avg_dist(i) = mean(sqrt(sum(bsxfun(@minus, features(idx == i, :), C(i,:)).^2, 2)));
-end
-
-featVec = zeros(length(names), voc_size);
-reverseStr = '';
-for i=1:length(names)
-    load([signature_path names(i).author '/' names(i).name]);
-    featSet = reshape(gradient, dim, size(gradient, 3))';
-    for j=1:voc_size
-        featVec(i,j) = sum(exp( - sum(bsxfun(@minus, featSet, C(j,:)).^2, 2) ...
-            / (2*avg_dist(j).^2)))/ size(gradient, 3);
-    end
-    
-    %
-    % Display the progress
-    percentDone = 100 * i / length(names);
-    msg = sprintf('Percent done: %3.1f', percentDone); 
-    fprintf([reverseStr, msg]);
-    reverseStr = repmat(sprintf('\b'), 1, length(msg));      
-end
-
-%% clustering
-disp 'clustering images ...'
-
-[ent, mu] = eval_clust(names, featVec);
-%% copy image files
-copy_clust(image_path, names);

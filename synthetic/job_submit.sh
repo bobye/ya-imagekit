@@ -1,5 +1,5 @@
 #PBS -l nodes=1:ppn=1
-#PBS -l walltime=1:00:00
+#PBS -l walltime=1:30:00
 #PBS -l pmem=2gb
 #PBS -j oe
 cd $PBS_O_WORKDIR

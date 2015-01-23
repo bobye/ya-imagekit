@@ -27,12 +27,31 @@ for i=1:length(names)
     im = rgb2gray(im);
     featVec(i) = entropy(im);
 end
+[ent, mu] = eval_clust(names, featVec);
+plot(ent, mu,'r.-'); hold on
+ylim([0, 0.65]);
+xlim([2, 7]);
+xlabel('Entropy of clusters');
+ylabel('NMI');
 %% Lab histogram
 addpath('/gpfs/home/jxy198/work/ya-imagekit/synthetic/vislab/matlab/lab_histogram');
 for i=1:length(names)
     image_filenames{i} = [image_path names(i).author '/' names(i).name];
 end
 featVec = lab_hist(image_filenames, '');
+[ent, mu] = eval_clust(names, featVec);
+plot(ent, mu,'g*-'); hold on
+%% GIST
+gist_path=[path 'gist/'];
+featVec = zeros(length(names), 960);
+for i=1:length(names)
+    [~, tmp, ~] = fileparts(names(i).name);
+    featVec(i,:) = load([gist_path names(i).author '/' tmp '.gist.mat'], '-ASCII');
+end
+[ent, mu] = eval_clust(names, featVec);
+plot(ent, mu,'m+-'); hold on
+
 
 %%
-[ent, mu] = eval_clust(names, featVec);
+
+legend('SuperGrad', 'Entropy','Lab Hist','GIST');

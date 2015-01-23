@@ -8,10 +8,10 @@ function [ent, mu] = muEnt_clust(label_map, image_cluster)
     for i=1:n
         ent(i) = entropyfunc(histc(image_cluster(:,i), 1:max(image_cluster(:,i))) / m);
         [~, ~, ic] = unique([label_map, image_cluster(:,i)], 'rows');
-        mu(i) = (entropyfunc(histc(ic, 1:max(ic)) / m) - ent(i));       
+        mu(i) = (ent(i) + label_ent - entropyfunc(histc(ic, 1:max(ic)) / m))/(ent(i));       
     end
-    plot(ent, mu);
-    ylim([0, label_ent]);
+    %plot(ent, mu);
+    %ylim([0, label_ent]);
 end
 
 function ent = entropyfunc(p)
