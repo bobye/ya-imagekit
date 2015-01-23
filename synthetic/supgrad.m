@@ -36,10 +36,11 @@ featVec = zeros(length(names), voc_size);
 reverseStr = '';
 for i=1:length(names)
     load([signature_path names(i).author '/' names(i).name]);
-    featSet = reshape(gradient, dim, size(gradient, 3))';
+    featSet= gradient(1:(end-1),:)';
+    featWeight=gradient(end,:)';
     for j=1:voc_size
-        featVec(i,j) = sum(exp( - sum(bsxfun(@minus, featSet, C(j,:)).^2, 2) ...
-            / (2*avg_dist(j).^2)))/ (size(gradient, 3) );
+        featVec(i,j) = sum(exp( - sum(abs(bsxfun(@minus, featSet, C(j,:))), 2) ...
+            / (1.*avg_dist(j))).*featWeight)/ size(gradient, 2) ;
     end
     
     %

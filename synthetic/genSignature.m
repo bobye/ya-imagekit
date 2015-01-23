@@ -5,7 +5,8 @@ addpath(genpath('../src/misc/MatlabFns/'));
 
 %% Load image
 disp(filename);
-
+info = imfinfo(filename);
+assert(info.BitDepth == 24 && strcmp(info.ColorType, 'truecolor'));
 im = imread(filename);
 im = imresize(im, min(256 / sqrt(size(im,1) * size(im,2)), 1.0));
 
@@ -26,7 +27,7 @@ n = length(I);
 
 %% compute signatures
 disp 'start computing signatures ...'
-gradient = zeros(20,20,n);
+gradient = zeros(20*20 + 1,n);
 im = lab2uint8(rgb2lab(im));
 reverseStr = '';
 tic;
@@ -42,9 +43,10 @@ for i=1:n
     Label(leftI) = -1;
     Label(rightI) = 1;
     Label(~(leftI | rightI)) = 0;
-    gradient(:,:,i) = superPixelGrad(ROI, Label);
+    [grad, weight] = superPixelGrad(ROI, Label);
+    gradient(:,i) = [reshape(grad, 400, 1); weight];
     %show(drawregionboundaries(Label, ROI, [255 255 255]));
-    %figure;imshow(-kron(gradient(:,:,i), ones(10)), []);
+    %figure;imshow(-kron(grad(:,:,i), ones(10)), []);
     %pause;
    
     % Display the progress

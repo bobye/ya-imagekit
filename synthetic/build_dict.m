@@ -6,7 +6,7 @@ max_size = 120000;
 voc_size = 200;
 
 path='/gpfs/group/w/wang/jianbo/paintings/Westlake/';
-signature_path=[path 'signature/'];
+signature_path=[path 'supgrad_v1/'];
 image_path=[path 'westlake_by_artists/'];
 
 %% load set of images
@@ -31,8 +31,8 @@ features = zeros(max_size, dim);
 idx=1;
 for i=1:length(names)
     load([signature_path names(i).author '/' names(i).name]);
-    column = min(size(gradient, 3), max_size - idx + 1);
-    featSet = reshape(gradient(:,:,1:column), dim, column)';
+    column = min(size(gradient, 2), max_size - idx + 1);
+    featSet = gradient(1:(end-1),1:column)';
     features(idx:idx+column-1, :) = featSet;
     idx = idx + column;
     if (idx > max_size) 

@@ -1,4 +1,4 @@
-function [ sig ] = superPixelGrad( Image, Label )
+function [ sig , weight ] = superPixelGrad( Image, Label )
 % superpixel gradient for synthetic examples
 % I -  images
 % L -  labels: 0 irrelevant, 1 first segment, -1 second segment
@@ -76,6 +76,7 @@ prob.bux = [];
 param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_PRIMAL_SIMPLEX'; 
 [rcode, w] = mosekopt('minimize echo(0)', prob, param);
 
+weight = sqrt(w.sol.bas.pobjval);
 try
     w = w.sol.bas.xx;
     w(w<1E-10) = 0;
@@ -122,6 +123,8 @@ for i=1:sizeT
         end
     end
 end
+
+sig = sig / sum(sig(:));
 
 end
 
