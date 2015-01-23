@@ -1,10 +1,11 @@
-path=/gpfs/home/jxy198/group/jianbo/paintings/westlake2
-for filename in `ls -d -1 $path/*.jpg`
+path=/gpfs/home/jxy198/group/jianbo/paintings/Westlake
+
+for filename in `ls -1 $path/westlake_by_artists/*/*.jpg`
 do
-##filename=/gpfs/home/jxy198/group/jianbo/paintings/westlake2/Yin+and+Yang+of+it.jpg
-#	k=$(basename ${filename##*/} .jpg)
-#	if [ ! -f $path/../westlake2-sig256/$k.supgrad.mat ]
-#	then
-		qsub -v file=$filename job_submit.sh	
-#	fi
+	k=`echo $filename | sed 's/westlake_by_artists/signature/g' | sed 's/.jpg/.supgrad.mat/g'`
+	if [ ! -f "$k" ]
+	then
+		qsub -v ifile="$filename",ofile="$k" job_submit.sh	
+	fi
+#	echo $filename
 done

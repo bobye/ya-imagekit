@@ -1,14 +1,13 @@
-function [] = genSignature(filename)
+function [] = genSignature(filename, ofilename)
 
 [pathstr, name, ~] = fileparts(filename);
 addpath(genpath('../src/misc/MatlabFns/'));
 
 %% Load image
+disp(filename);
 
 im = imread(filename);
 im = imresize(im, min(256 / sqrt(size(im,1) * size(im,2)), 1.0));
-
-disp(filename);
 
 %% Compute superpixels
 tic;
@@ -58,4 +57,4 @@ disp '[done]'
 toc;
 
 %% save results
-save([pathstr '/../westlake2-sig256_new/' name '.supgrad.mat'], 'gradient');
+save(ofilename, 'gradient');

@@ -108,7 +108,7 @@ end
 Q = cell(sizeD);
 C = cell(sizeD);
 for j=1:sizeD
-    [Qt, ~, k] = unique(AllPoints(IDX == (j-1) & Label(:) ~=0 ,:), 'rows');
+    [Qt, ~, k] = unique(AllPoints(IDX == (j-1) ,:), 'rows');
     C{j} = histc(k, 1:size(Qt,1));
     Q{j} = double(Qt);
 end
