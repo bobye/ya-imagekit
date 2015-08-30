@@ -1,5 +1,8 @@
 %% create synthetic examples
-clear;
+%clear;
+addpath('/gpfs/work/j/jxy198/ya-imagekit/src/misc/imrender/vgg'); 
+addpath('/gpfs/work/j/jxy198/software/mosek/7/toolbox/r2013a/');
+addpath('/gpfs/work/j/jxy198/ya-imagekit/src/misc'); 
 
 %% first example
 height= 20;
@@ -28,7 +31,9 @@ image_rgb = uint8(image_rgb);
 height= size(image_rgb,1);
 width = size(image_rgb,2);
 %% calcuate signatures
-tic;gradient = superPixelGrad(image_rgb, [-ones(height, width/2), ones(height, width/2)]);toc;
+profile on
+gradient = SuperPixelGradv2(image_rgb, [-ones(height, width/2), ones(height, width/2)]);
+profile viewer
 
 %% display result
 figure; imshow(-kron(gradient, ones(10)), []);
