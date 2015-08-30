@@ -87,12 +87,19 @@ for i=1:sizeP
     end
 end
 
-sig = acos(sig / max(sig(:)));
+sig = pi/2 - acos(sig / max(sig(:)));
 
 function color = interp2color(x)
   color=  [vgg_interp2(Image(:,:,1), x(:,2), x(:,1)); ...
            vgg_interp2(Image(:,:,2), x(:,2), x(:,1)); ...
            vgg_interp2(Image(:,:,3), x(:,2), x(:,1))];
+end
+
+function D = sqrtDistance(p1, p2)
+    L1 = evaluate(p1, p2);
+    L2 = evaluate(p2, p2);
+    W = getWeights(p2);
+    D = (sqrt(L1).*sqrt(L2) * W') / (L2 * W');
 end
 
 end
