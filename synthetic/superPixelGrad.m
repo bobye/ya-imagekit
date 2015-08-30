@@ -63,26 +63,29 @@ m = size(P2,1);
 %toc;
 
 % --- Mosek solver ---
-addpath('/gpfs/work/j/jxy198/software/mosek/7/toolbox/r2013a/');
-prob.c = pdist2(P1,P2,'sqeuclidean'); prob.c = prob.c(:);
-subi = [repmat(1:n, 1, m), reshape(repmat((1:m) + n, n, 1), 1, n*m)];
-subj = [1:(n*m), 1:(n*m)];
-valij = ones(1,2*n*m);
-prob.a = sparse(subi, subj, valij);
-prob.blc = [C1/sum(C1); C2/sum(C2)];
-prob.buc = prob.blc;
-prob.blx = sparse(n*m, 1);
-prob.bux = [];
-param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_PRIMAL_SIMPLEX'; 
-[rcode, w] = mosekopt('minimize echo(0)', prob, param);
+%addpath('/gpfs/work/j/jxy198/software/mosek/7/toolbox/r2013a/');
+%prob.c = pdist2(P1,P2,'sqeuclidean'); prob.c = prob.c(:);
+%subi = [repmat(1:n, 1, m), reshape(repmat((1:m) + n, n, 1), 1, n*m)];
+%subj = [1:(n*m), 1:(n*m)];
+%valij = ones(1,2*n*m);
+%prob.a = sparse(subi, subj, valij);
+%prob.blc = [C1/sum(C1); C2/sum(C2)];
+%prob.buc = prob.blc;
+%prob.blx = sparse(n*m, 1);
+%prob.bux = [];
+%param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_PRIMAL_SIMPLEX'; 
+%[rcode, w] = mosekopt('minimize echo(0)', prob, param);
 
-try
-    w = w.sol.bas.xx;
-    w(w<1E-10) = 0;
-    w = sparse(reshape(w, n, m));
-catch
-    fprintf('MSKERROR: Could not get solution');
-end
+%try
+%    w = w.sol.bas.xx;
+%    w(w<1E-10) = 0;
+%    w = sparse(reshape(w, n, m));
+%catch
+%    fprintf('MSKERROR: Could not get solution');
+%end
+
+% --- Ported Solver ---
+[rcode, ~, w, ~] = OptimalTransport(P1, P2, C1, C2);
 
 %% build signature
 %disp 'build up histogram ... '
