@@ -1,8 +1,6 @@
 %% create synthetic examples
 %clear;
-addpath('/gpfs/work/j/jxy198/ya-imagekit/src/misc/imrender/vgg'); 
-addpath('/gpfs/work/j/jxy198/software/mosek/7/toolbox/r2013a/');
-addpath('/gpfs/work/j/jxy198/ya-imagekit/src/misc'); 
+addpath('../SuperPixelDisplacementInterpolation');
 
 %% first example
 height= 20;
@@ -28,6 +26,11 @@ image_rgb = uint8(image_rgb);
 %image_rgb = imread('albers-654.jpg');
 %image_rgb = imread('08color2.jpg'); image_rgb = image_rgb(181:end,:,:);
 %image_rgb = imread('sample1.png');
+
+%%
+if max(size(image_rgb)) > 50
+    image_rgb = imresize(image_rgb, 50 / max(size(image_rgb)));
+end
 height= size(image_rgb,1);
 width = size(image_rgb,2);
 %% calcuate signatures

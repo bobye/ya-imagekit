@@ -2,6 +2,7 @@ function [] = genSignature(filename, ofilename)
 
 [pathstr, name, ~] = fileparts(filename);
 addpath(genpath('../src/misc/MatlabFns/'));
+addpath('../SuperPixelDisplacementInterpolation/');
 
 %% Load image
 disp(filename);
@@ -26,7 +27,7 @@ n = length(I);
 
 %% compute signatures
 disp 'start computing signatures ...'
-gradient = zeros(20,20,n);
+gradient = zeros(5,5,n);
 im = lab2uint8(rgb2lab(im));
 reverseStr = '';
 tic;
@@ -42,9 +43,9 @@ for i=1:n
     Label(leftI) = -1;
     Label(rightI) = 1;
     Label(~(leftI | rightI)) = 0;
-    gradient(:,:,i) = superPixelGrad(ROI, Label);
+    gradient(:,:,i) = SuperPixelGradv2(ROI, Label);
     %show(drawregionboundaries(Label, ROI, [255 255 255]));
-    %figure;imshow(-kron(gradient(:,:,i), ones(10)), []);
+    %figure;imshow(kron(gradient(:,:,i), ones(10)), []);
     %pause;
    
     % Display the progress

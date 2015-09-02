@@ -40,8 +40,8 @@ end
 
 %% build signature
 %disp 'build up histogram ... '
-sizeP = 20;
-sizeQ = 20;
+sizeP = 5;
+sizeQ = 5;
 h = 3.;
 sig = zeros(sizeP, sizeQ);
 
@@ -88,6 +88,11 @@ for i=1:sizeP
 end
 
 sig = pi/2 - acos(sig / max(sig(:)));
+
+% flip rows and columns
+if sum(sum(triu(sig))) > sum(sum(tril(sig)))
+    sig = rot90(sig,2);
+end
 
 function color = interp2color(x)
   color=  [vgg_interp2(Image(:,:,1), x(:,2), x(:,1)); ...
